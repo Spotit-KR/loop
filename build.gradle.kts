@@ -28,8 +28,12 @@ repositories {
 
 extra["netflixDgsVersion"] = "11.0.0"
 extra["springCloudVersion"] = "2025.1.0"
+extra["exposedVersion"] = "1.0.0"
+extra["kotestVersion"] = "6.1.2"
+extra["mockkVersion"] = "1.14.9"
 
 dependencies {
+    // Spring Boot
     implementation("org.springframework.boot:spring-boot-h2console")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
@@ -39,14 +43,36 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("tools.jackson.module:jackson-module-kotlin")
+
+    // Exposed ORM
+    implementation("org.jetbrains.exposed:exposed-spring-boot4-starter:${property("exposedVersion")}")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:${property("exposedVersion")}")
+    implementation("org.jetbrains.exposed:exposed-json:${property("exposedVersion")}")
+
+    // Database
     runtimeOnly("com.h2database:h2")
-    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     runtimeOnly("org.postgresql:postgresql")
+
+    // Monitoring
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    // Test - Spring Boot
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter-test")
+
+    // Test - Kotest
+    testImplementation("io.kotest:kotest-runner-junit5:${property("kotestVersion")}")
+    testImplementation("io.kotest:kotest-assertions-core:${property("kotestVersion")}")
+    testImplementation("io.kotest:kotest-extensions-spring:${property("kotestVersion")}")
+
+    // Test - MockK
+    testImplementation("io.mockk:mockk:${property("mockkVersion")}")
+    testImplementation("com.ninja-squad:springmockk:5.0.1")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
