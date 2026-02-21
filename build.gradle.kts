@@ -20,6 +20,11 @@ configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
     }
+    all {
+        resolutionStrategy {
+            force("commons-fileupload:commons-fileupload:1.6.0")
+        }
+    }
 }
 
 repositories {
