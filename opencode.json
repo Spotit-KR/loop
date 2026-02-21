@@ -2,5 +2,11 @@
   "$schema": "https://opencode.ai/config.json",
   "instructions": [
     "docs/architecture.md"
-  ]
+  ],
+  "formatter": {
+    "ktlint": {
+      "command": [".claude/hooks/ktlint-format.sh", "$FILE"],
+      "extensions": [".kt", ".kts"]
+    }
+  }
 }

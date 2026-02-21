@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("com.netflix.dgs.codegen") version "8.3.0"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
 }
 
 group = "kr.io.team"
@@ -99,6 +100,10 @@ tasks.generateJava {
     schemaPaths.add("$projectDir/src/main/resources/graphql-client")
     packageName = "kr.io.team.loop.codegen"
     generateClient = true
+}
+
+ktlint {
+    version = "1.8.0"
 }
 
 tasks.withType<Test> {
