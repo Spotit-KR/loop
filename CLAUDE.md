@@ -20,35 +20,30 @@
 ## 아키텍처
 
 DDD + Clean Architecture 기반. 상세 구조와 코드 패턴은 @docs/architecture.md 참고.
+Security 설정 코드 작성 전 @docs/spring-security-7.md 참고.
 
 - Domain Layer는 외부 의존성 없이 순수 Kotlin 코드로 작성
 - Presentation, Application, Infrastructure 모두 Domain에 직접 의존
-- Presentation은 Application(Service, DTO)과 Domain(Command, Query, VO)에 의존
+- Presentation은 Application(Service 호출)과 Domain(Command, Query, VO, Entity)에 의존
 - Infrastructure는 Domain(Repository 인터페이스)에만 의존
 - common을 제외한 다른 BC의 코드를 직접 참조하지 않음
 - BC 간 공유 VO는 `common/domain/`에 위치
 - Domain의 Command/Query가 Presentation 이후 모든 레이어의 공용 입력
+- Service는 기본적으로 Entity를 직접 반환 (Application DTO는 필요시에만)
 
 ## 레이어 규칙 요약
 
 - **Domain model/**: 엔티티, VO(`@JvmInline value class`), Command(sealed interface), Query data class(nullable 필드)
-- **Domain repository/**: Command/Query를 입력으로, 엔티티를 출력으로 사용
+- **Domain repository/**: Command/Query를 기본 입력으로 사용. `findById`, `existsBy`, `countBy` 등 의도형 단건 메서드도 허용
 - **Domain service/**: 도메인 객체 여럿이 엮이고, 100줄 이상이고, 여러 repo 조합이 아닐 때만 도입
-- **Application service/**: UseCase 인터페이스 없이 Service가 직접 구현. `@Service` + `@Transactional`
-- **Application dto/**: 서비스 반환 DTO
-- **Infrastructure persistence/**: Repository 구현체 + ORM 테이블 정의
+- **Application service/**: BC당 1개 Service 기본, 150줄 초과시 분리. `@Service` + `@Transactional`. Entity 직접 반환이 기본
+- **Application dto/**: 집계/보안 필드 제외 등 변환이 필요할 때만 생성. 기본은 Service가 Entity 직접 반환
+- **Infrastructure persistence/**: Repository 구현체 + Exposed Table 정의. Table은 각 BC가 소유
 - **Infrastructure external/**: OpenFeign 클라이언트 (필요시에만)
 - **Presentation request/**: 클라이언트 요청 DTO (Primitive Type). Controller에서 Domain Command/Query로 변환
-- **Presentation response/**: 클라이언트 응답 DTO (Primitive Type). Controller에서 Application DTO로부터 변환
-- **Presentation controller/**: Request→Command/Query 변환, Service 호출, DTO→Response 변환
-- **Common**: 공유 VO(`domain/`), 공통 설정(`config/`), 공통 인프라(`infrastructure/`). 필요한 것만 생성
-
-## 테스트
-
-- Kotest (BehaviorSpec — Given/When/Then) + MockK + SpringMockK
-- Domain/Application: 단위 테스트 **필수** (Spring Context 없음)
-- Infrastructure/Presentation: 통합 테스트 **선택적** (사람이 판단)
-- 테스트 클래스명: `대상클래스명Test`
+- **Presentation response/**: 클라이언트 응답 DTO (Primitive Type). Entity 또는 Application DTO로부터 변환
+- **Presentation controller/**: Request→Command/Query 변환, Service 호출, Entity/DTO→Response 변환
+- **Common**: 공유 VO(`domain/`), 공통 설정(`config/`). 필요한 것만 생성
 
 ## TDD
 

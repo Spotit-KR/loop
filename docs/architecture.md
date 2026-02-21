@@ -1,4 +1,4 @@
-# Loop Server Architecture
+# Loop Server Architecture v2
 
 ## 기술 스택
 
@@ -13,7 +13,7 @@
 Domain이 중심이며, 나머지 레이어가 Domain에 의존합니다.
 
 - **Domain** → 외부 의존 없음. 순수 비즈니스 로직.
-- **Presentation** → Application (Service 호출, DTO 사용) + Domain (Command/Query 생성, VO 사용)
+- **Presentation** → Application (Service 호출) + Domain (Command/Query 생성, VO·Entity 사용)
 - **Application** → Domain (Command/Query, Repository 인터페이스, Entity, VO 사용)
 - **Infrastructure** → Domain (Repository 인터페이스 구현)
 
@@ -24,28 +24,38 @@ kr.io.team.loop/
 ├── ServerApplication.kt
 ├── common/                        # 공통 모듈
 │   ├── domain/                   # 공유 VO (MemberId, TaskId 등)
-│   ├── config/                   # 공통 설정 (Security, WebMvc 등)
-│   └── infrastructure/           # 공통 인프라 구현체
+│   └── config/                   # 공통 설정 (Security, WebMvc 등)
 └── {bounded-context}/            # 도메인별 Bounded Context
     ├── presentation/
     │   ├── request/              # 요청 DTO (Primitive Type)
     │   ├── response/             # 응답 DTO (Primitive Type)
     │   └── controller/           # 변환 + Service 호출
     ├── application/
-    │   ├── dto/                  # 응답 DTO (Service 반환용)
-    │   └── service/              # Service 구현체
+    │   ├── dto/                  # (선택) 변환 필요시에만 생성
+    │   └── service/              # BC당 1개 Service 기본
     ├── domain/
     │   ├── model/                # 엔티티, VO, Command, Query
     │   ├── repository/           # Repository 인터페이스
     │   └── service/              # Domain Service (필요시에만)
     └── infrastructure/
-        ├── persistence/          # Repository 구현, Exposed Table 정의
+        ├── persistence/          # Repository 구현 + Exposed Table 정의
         └── external/             # OpenFeign 클라이언트 (필요시에만)
 ```
 
+## 레이어별 상세 규칙
+
+각 레이어의 상세 규칙, 코드 예시, 도입 기준은 개별 문서를 참고합니다.
+**해당 레이어 코드를 작성하기 전에 반드시 해당 문서(docs/layers/{layer}.md)를 읽고 패턴을 따를 것.**
+
+- **[Domain Layer](layers/domain.md)** — 엔티티, VO, Command/Query, Repository 인터페이스, Domain Service
+- **[Application Layer](layers/application.md)** — Service (BC당 1개 기본, 150줄 분리), Application DTO (선택적)
+- **[Infrastructure Layer](layers/infrastructure.md)** — Exposed Table (BC 소유), Repository 구현체, BC 간 FK 참조
+- **[Presentation Layer](layers/presentation.md)** — Request/Response DTO, Controller 변환 로직
+- **Common** — 공유 VO(`domain/`), 공통 설정(`config/`). 2개 이상 BC에서 사용하는 VO만 배치. 필요한 것만 생성.
+
 ## 데이터 흐름
 
-### Command (CUD)
+### Command (CUD) — Application DTO 없는 경우 (기본)
 
 ```
 Controller: CreateTaskRequest(Primitive) → TaskCommand.Create(VO) 변환
@@ -54,9 +64,21 @@ Service: TaskCommand.Create 수신 → Repository에 전달, 트랜잭션 관리
     ↓
 Repository: TaskCommand.Create 수신 → 영속화 → Task 엔티티 반환
     ↓
-Service: Task → TaskDto 변환 후 반환
+Service: Task 엔티티 직접 반환
     ↓
-Controller: TaskDto → TaskResponse(Primitive) 변환 후 반환
+Controller: Task → TaskResponse(Primitive) 변환 후 반환
+```
+
+### Command (CUD) — Application DTO 있는 경우
+
+```
+Controller: RegisterRequest(Primitive) → AuthCommand.Register(VO) 변환
+    ↓
+Service: AuthCommand.Register 수신 → 비즈니스 로직 수행
+    ↓
+Service: Entity → AuthTokenDto(보안 필드 제외) 변환 후 반환
+    ↓
+Controller: AuthTokenDto → AuthTokenResponse(Primitive) 변환 후 반환
 ```
 
 ### Query (R)
@@ -68,157 +90,52 @@ Service: TaskQuery 수신 → Repository에 전달
     ↓
 Repository: TaskQuery 수신 → 조회 → List<Task> 반환
     ↓
-Service: List<Task> → List<TaskDto> 변환 후 반환
+Service: List<Task> 직접 반환
     ↓
-Controller: List<TaskDto> → List<TaskResponse>(Primitive) 변환 후 반환
+Controller: List<Task> → List<TaskResponse>(Primitive) 변환 후 반환
 ```
 
-## 핵심 패턴
+## BC 간 통신 규칙
 
-### Value Object
+- **Domain 레이어**: `common/domain/`의 공유 VO만 사용 (예: `MemberId`, `TaskId`)
+- **Infrastructure 레이어**: 다른 BC의 Table을 FK로 참조 허용
+- **직접 참조 금지**: common을 제외한 다른 BC의 코드를 직접 import하지 않음
+- **publicapi 불필요**: 현재 규모에서는 BC 간 public API 레이어를 만들지 않음
 
-`@JvmInline value class`로 정의하고, `init` 블록에서 유효성을 검증합니다.
+## 파일 명명 규칙
 
-```kotlin
-@JvmInline
-value class TaskTitle(val value: String) {
-    init {
-        require(value.isNotBlank()) { "TaskTitle must not be blank" }
-        require(value.length <= 100) { "TaskTitle must not exceed 100 characters" }
-    }
-}
-```
+| 레이어 | 파일 | 명명 규칙 | 예시 |
+|--------|------|-----------|------|
+| Domain | 엔티티 | `{Entity}.kt` | `Task.kt` |
+| Domain | VO | `{VOName}.kt` | `TaskTitle.kt` |
+| Domain | Command | `{Entity}Command.kt` | `TaskCommand.kt` |
+| Domain | Query | `{Entity}Query.kt` | `TaskQuery.kt` |
+| Domain | Repository 인터페이스 | `{Entity}Repository.kt` | `TaskRepository.kt` |
+| Domain | ReadRepository | `{Entity}ReadRepository.kt` | `TaskReadRepository.kt` |
+| Domain | Domain Service | `{Concept}DomainService.kt` | `TaskScheduleDomainService.kt` |
+| Application | Service | `{BC}Service.kt` | `TaskService.kt` |
+| Application | Service (분리시) | `{BC}{Command\|Query}Service.kt` | `TaskCommandService.kt` |
+| Application | DTO | `{Name}Dto.kt` | `AuthTokenDto.kt` |
+| Infrastructure | Table | `{Entity}Table.kt` | `TaskTable.kt` |
+| Infrastructure | Repository 구현체 | `Exposed{Entity}Repository.kt` | `ExposedTaskRepository.kt` |
+| Presentation | Request | `{Action}Request.kt` | `CreateTaskRequest.kt` |
+| Presentation | Response | `{Entity}Response.kt` | `TaskResponse.kt` |
+| Presentation | Controller | `{BC}Controller.kt` | `TaskController.kt` |
 
-BC간 공유 VO(MemberId, TaskId 등)는 `common/domain/`에 위치합니다.
+## 선택적 레이어 도입 기준
 
-### Command
+기본은 최소 구조. 다음 정량적 기준을 충족할 때 선택적으로 도입합니다.
 
-Domain 레이어의 model/에 sealed interface로 정의합니다. Presentation 이후 모든 레이어의 CUD 입력 수단입니다.
-
-```kotlin
-sealed interface TaskCommand {
-    data class Create(
-        val title: TaskTitle,
-        val description: TaskDescription?,
-        val memberId: MemberId,
-    ) : TaskCommand
-
-    data class Update(
-        val taskId: TaskId,
-        val title: TaskTitle,
-    ) : TaskCommand
-
-    data class Delete(
-        val taskId: TaskId,
-    ) : TaskCommand
-}
-```
-
-### Query data class
-
-Domain 레이어에 nullable 필드를 가진 단일 data class로 정의합니다. Presentation 이후 모든 레이어의 조회 입력 수단입니다. 조건이 추가되면 필드만 추가합니다.
-
-```kotlin
-data class TaskQuery(
-    val memberId: MemberId? = null,
-    val weekId: WeekId? = null,
-    val status: TaskStatus? = null,
-    val page: Int = 0,
-    val size: Int = 20,
-)
-```
-
-### Repository
-
-인터페이스는 `domain/repository/`에 위치합니다. Command/Query를 입력으로, 엔티티를 출력으로 사용합니다.
-
-```kotlin
-interface TaskRepository {
-    fun save(command: TaskCommand): Task
-    fun findById(id: TaskId): Task?
-    fun findAll(query: TaskQuery): List<Task>
-}
-```
-
-구현체는 `infrastructure/persistence/`에 위치합니다.
-
-### Service
-
-UseCase 인터페이스를 별도로 만들지 않습니다. Service 클래스가 직접 비즈니스 로직을 수행합니다.
-로직이 복잡하면 command별로 service를 분리할 수 있습니다. (예: `CreateTaskService`, `UpdateTaskService`)
-
-```kotlin
-@Service
-class CreateTaskService(
-    private val taskRepository: TaskRepository,
-) {
-    @Transactional
-    fun execute(command: TaskCommand.Create): TaskDto {
-        val task = taskRepository.save(command)
-        return TaskDto.from(task)
-    }
-}
-```
-
-### Presentation
-
-Controller는 외부(클라이언트)와 내부(Application/Domain) 사이의 변환 경계입니다.
-
-- **request/**: 클라이언트 요청 DTO. Primitive Type만 사용.
-- **response/**: 클라이언트 응답 DTO. Primitive Type만 사용. Application DTO로부터 변환.
-- **controller/**: Request → Domain Command/Query 변환, Service 호출, Application DTO → Response 변환.
-
-```kotlin
-// Request DTO
-data class CreateTaskRequest(
-    val title: String,
-    val description: String?,
-)
-
-// Response DTO
-data class TaskResponse(
-    val id: Long,
-    val title: String,
-    val description: String?,
-) {
-    companion object {
-        fun from(dto: TaskDto) = TaskResponse(
-            id = dto.id.value,
-            title = dto.title.value,
-            description = dto.description?.value,
-        )
-    }
-}
-
-// Controller
-@RestController
-@RequestMapping("/tasks")
-class TaskController(
-    private val createTaskService: CreateTaskService,
-) {
-    @PostMapping
-    fun createTask(
-        @RequestBody request: CreateTaskRequest,
-        @CurrentMemberId memberId: Long,
-    ): ResponseEntity<TaskResponse> {
-        val command = TaskCommand.Create(
-            title = TaskTitle(request.title),
-            description = request.description?.let { TaskDescription(it) },
-            memberId = MemberId(memberId),
-        )
-        val dto = createTaskService.execute(command)
-        return ResponseEntity.status(HttpStatus.CREATED).body(TaskResponse.from(dto))
-    }
-}
-```
-
-### Domain Service 도입 기준
-
-다음 기준을 **모두** 충족할 때만 도입합니다:
-
-1. BC 내 최상위 도메인 객체 여럿이 엮인 비즈니스 로직이 존재할 때
-2. 코드가 100줄 이상이 필요하다고 판단될 때
-3. 여러 repository 구현체의 조합이 필요한 로직이 아닐 때
+| 선택적 요소 | 도입 기준 |
+|-------------|-----------|
+| Application DTO | 집계 결과, 보안 필드 제외, 계산 필드 필요시 |
+| ReadRepository 분리 | JOIN 3개 이상인 복합 조회가 있을 때 |
+| Service 분리 | 단일 Service가 150줄 초과할 때 |
+| Domain Service | 도메인 객체 여럿 엮임 + 100줄 이상 + 여러 repo 조합이 아닐 때 |
+| `application/dto/` 디렉토리 | Application DTO가 1개 이상 필요할 때 |
+| `infrastructure/external/` | 외부 API 호출이 필요할 때 |
+| 새 파일 생성 | 기존 파일에 추가할 수 없는지 먼저 확인 |
+| common 배치 | 2개 이상의 BC에서 사용하는 VO만 common/domain/에 배치 |
 
 ## 테스트 전략
 
@@ -229,4 +146,41 @@ class TaskController(
 | Infrastructure | 통합 테스트 | 선택적 (사람이 판단) | 있음 | H2 DB, @SpringBootTest |
 | Presentation | 통합 테스트 | 선택적 (사람이 판단) | 있음 | @WebMvcTest + MockK |
 
-테스트 클래스명: `대상클래스명Test` (예: `CreateTaskServiceTest`)
+테스트 클래스명: `대상클래스명Test` (예: `TaskServiceTest`)
+
+## 완전 예시: task BC
+
+```
+task/
+├── presentation/
+│   ├── request/
+│   │   └── CreateTaskRequest.kt
+│   ├── response/
+│   │   └── TaskResponse.kt
+│   └── controller/
+│       └── TaskController.kt
+├── application/
+│   └── service/
+│       └── TaskService.kt          # BC당 1개 (dto/ 없음)
+├── domain/
+│   ├── model/
+│   │   ├── Task.kt                 # 엔티티
+│   │   ├── TaskTitle.kt            # VO
+│   │   ├── TaskDescription.kt      # VO
+│   │   ├── TaskStatus.kt           # enum
+│   │   ├── TaskCommand.kt          # sealed interface
+│   │   └── TaskQuery.kt            # data class
+│   └── repository/
+│       └── TaskRepository.kt       # 인터페이스 (Read/Write 통합)
+└── infrastructure/
+    └── persistence/
+        ├── TaskTable.kt            # Exposed Table (BC 소유)
+        └── ExposedTaskRepository.kt
+```
+
+**파일 수: 12개** — Application DTO 없음, Service 1개, Repository 통합.
+
+## 완전 예시: auth BC (task BC와의 차이점)
+
+보안 필드 제외가 필요하므로 `application/dto/AuthTokenDto.kt`가 추가되고, Service가 Entity 대신 DTO를 반환합니다. 나머지 구조는 task BC와 동일합니다.
+
