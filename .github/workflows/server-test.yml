@@ -1,0 +1,26 @@
+name: Server Module Test
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: [self-hosted, macOS, ARM64]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        run: echo "JAVA_HOME=$(/usr/libexec/java_home -v 25)" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: build/reports/tests/test/
+          retention-days: 7
