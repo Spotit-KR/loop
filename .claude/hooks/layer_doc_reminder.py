@@ -65,8 +65,8 @@ def main():
     if "/docs/" in file_path:
         sys.exit(0)
 
-    # test 파일은 무시
-    if "/test/" in file_path or "Test.kt" in file_path:
+    # test 파일은 무시 (src/test/ 경로 또는 Test.kt 접미사)
+    if "/src/test/" in file_path or file_path.endswith("Test.kt"):
         sys.exit(0)
 
     messages = []

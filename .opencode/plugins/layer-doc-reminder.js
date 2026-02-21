@@ -29,7 +29,7 @@ function isDocsPath(filePath) {
 }
 
 function isTestPath(filePath) {
-  return /(^|\/)test\//.test(filePath) || filePath.includes("Test.kt")
+  return /(^|\/)src\/test\//.test(filePath) || filePath.endsWith("Test.kt")
 }
 
 function extractPathsFromPatchText(patchText) {

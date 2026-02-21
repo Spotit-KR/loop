@@ -146,19 +146,28 @@ class TestMain:
         )
         assert result.returncode == 0
 
-    def test_test_file_always_passes(self):
+    def test_test_file_suffix_always_passes(self):
         result = run_hook(
             self._make_input("/project/task/domain/model/TaskTest.kt"),
             self.reminder_dir,
         )
         assert result.returncode == 0
 
-    def test_test_directory_always_passes(self):
+    def test_src_test_directory_always_passes(self):
         result = run_hook(
-            self._make_input("/project/task/test/domain/model/Task.kt"),
+            self._make_input("/project/src/test/kotlin/task/domain/model/Task.kt"),
             self.reminder_dir,
         )
         assert result.returncode == 0
+
+    def test_bc_named_test_triggers_reminder(self):
+        """BC 이름이 test여도 src/test/가 아니므로 차단되어야 함"""
+        result = run_hook(
+            self._make_input("/project/test/domain/model/Task.kt"),
+            self.reminder_dir,
+        )
+        assert result.returncode == 2
+        assert "domain" in result.stderr
 
     def test_unrelated_file_passes(self):
         result = run_hook(
