@@ -5,7 +5,7 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication
 class ServerApplication
-// sleep mode test
+// display off test
 
 fun main(args: Array<String>) {
     runApplication<ServerApplication>(*args)
