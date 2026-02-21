@@ -2,6 +2,17 @@
 
 작업 계획 문서 작성 시 별도 지시가 없으면 docs/ 디렉토리에 마크다운 파일로 작성.
 
+## 구글 드라이브 (기획/PRD/할일)
+
+프로젝트 기획, PRD, 할일 등 비코드 문서는 구글 드라이브에서 관리합니다.
+
+- **루트 폴더**: `1WGdRszch7AuMrrnntwM-5kdv7Tjf7Z0Q`
+- 기능 구현 시 PRD나 회의록을 참고해야 하면 구글 드라이브에서 먼저 조회
+- 새 기획/PRD/할일 문서 작성이 필요하면 해당 폴더에 Google Docs로 생성
+- 참고 문서:
+  - `PRD` (ID: `1Pb_Ma6mfLJZpD3gpUVaqPkLdBsyAfPFuwY6AIy6J19A`) — 제품 요구사항 정의서
+  - `회의록` (ID: `1gPNIO7JsdH1Iq8FFI_SAIm5SOWBJtLE2p8OzPSSkHfg`) — 회의 내용 기록
+
 ## Git 브랜치 규칙
 
 - 이슈 기반 작업은 `ticket/#<이슈번호>` 형식으로 브랜치를 생성합니다. (예: `ticket/#13`)

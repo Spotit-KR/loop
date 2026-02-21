@@ -3,6 +3,21 @@
   "instructions": [
     "docs/architecture.md"
   ],
+  "mcp": {
+    "google-drive": {
+      "type": "local",
+      "command": ["npx", "@piotr-agier/google-drive-mcp"],
+      "enabled": true,
+      "environment": {
+        "GOOGLE_DRIVE_OAUTH_CREDENTIALS": "/Users/imsubin/.config/google-drive-mcp/gcp-oauth.keys.json"
+      }
+    },
+    "web2md": {
+      "type": "local",
+      "command": ["npx", "-y", "web2md-mcp@latest"],
+      "enabled": true
+    }
+  },
   "formatter": {
     "ktlint": {
       "command": [".claude/hooks/ktlint-format.sh", "$FILE"],
