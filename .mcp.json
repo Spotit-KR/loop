@@ -10,6 +10,10 @@
     "web2md": {
       "command": "npx",
       "args": ["-y", "web2md-mcp@latest"]
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
     }
   }
 }

@@ -16,6 +16,11 @@
       "type": "local",
       "command": ["npx", "-y", "web2md-mcp@latest"],
       "enabled": true
+    },
+    "figma": {
+      "type": "remote",
+      "url": "https://mcp.figma.com/mcp",
+      "enabled": true
     }
   },
   "formatter": {
