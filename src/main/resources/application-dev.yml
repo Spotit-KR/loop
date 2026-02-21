@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:loop-dev;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  exposed:
+    show-sql: true
+  flyway:
+    locations: classpath:db/migration
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvckRldmVsb3BtZW50VXNlT25seTEyMzQ1
