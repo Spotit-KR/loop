@@ -14,17 +14,35 @@ import os
 PROJECT_DIR = os.environ.get("CLAUDE_PROJECT_DIR", "")
 PLAN_BASE = os.path.join(PROJECT_DIR, "docs", "plan") if PROJECT_DIR else ""
 
+REQUIRED_PLAN_FILES = ["plan.md", "context.md", "checklist.md"]
+
 
 def find_active_plan_dirs():
-    """체크가 안 된 항목이 남아있는 plan 디렉토리 목록 반환."""
+    """활성 작업 계획 디렉토리 목록 반환.
+
+    활성 계획 조건: plan.md, context.md, checklist.md 3종 모두 존재 + plan.md에 미완료 항목.
+    """
     if not PLAN_BASE or not os.path.isdir(PLAN_BASE):
         return []
     dirs = []
-    for plan_md in glob.glob(os.path.join(PLAN_BASE, "*", "plan.md")):
+    try:
+        entries = os.listdir(PLAN_BASE)
+    except OSError:
+        return []
+    for entry in entries:
+        plan_dir = os.path.join(PLAN_BASE, entry)
+        if not os.path.isdir(plan_dir):
+            continue
+        # 3종 문서 존재 확인
+        if not all(
+            os.path.isfile(os.path.join(plan_dir, f)) for f in REQUIRED_PLAN_FILES
+        ):
+            continue
+        plan_md = os.path.join(plan_dir, "plan.md")
         with open(plan_md) as f:
             content = f.read()
         if "- [ ]" in content:
-            dirs.append(os.path.dirname(plan_md))
+            dirs.append(plan_dir)
     return dirs
 
 
