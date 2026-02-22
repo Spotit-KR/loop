@@ -1,6 +1,6 @@
 ---
 name: web-summarize
-description: When user gives a URL, use mcp__web2md__webToMarkdown. Triggers on bare URLs or fetch/summarize/explain requests.
+description: When user gives a URL, use mcp__web2md__webToMarkdown. Triggers on bare URLs or fetch/summarize/explain requests. NOT for GitHub URLs (use gh CLI) or Google Drive URLs (use Google Drive MCP tools).
 ---
 
 Use `mcp__web2md__webToMarkdown(url, jsEnabled?, summaryLevel?)` for all URL requests. Never use WebFetch.

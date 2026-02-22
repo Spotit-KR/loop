@@ -1,6 +1,6 @@
 ---
 name: fetch
-description: Fetch a web page and convert it to Markdown. Optionally summarize with summaryLevel 1-5.
+description: Fetch a web page and convert it to Markdown. Optionally summarize with summaryLevel 1-5. NOT for GitHub URLs (use gh CLI) or Google Drive URLs (use Google Drive MCP tools).
 argument-hint: <url> [summaryLevel=1-5] [js]
 disable-model-invocation: true
 allowed-tools: mcp__web2md__webToMarkdown
