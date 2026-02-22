@@ -7,7 +7,7 @@ const BLOCKED_PATTERNS = [
   [/git\s+restore\s+\.\s*$/i, "git restore .은 모든 변경사항을 삭제합니다"],
   [/git\s+stash\s+drop/i, "git stash drop은 스태시를 영구 삭제합니다"],
   [/git\s+stash\s+clear/i, "git stash clear는 모든 스태시를 삭제합니다"],
-  [/\brm\s+-rf\s+\//i, "rm -rf /는 매우 위험합니다"],
+  [/\brm\s+-rf\s+\/\s*(;|&&|\|\||$)/i, "rm -rf /는 매우 위험합니다"],
   [/\brm\s+-rf\s+~/i, "rm -rf ~는 홈 디렉토리를 삭제합니다"],
   [/\brm\s+-rf\s+\.\./i, "rm -rf ..은 상위 디렉토리를 삭제할 수 있습니다"],
   [/\brm\s+-rf\s+\*/i, "rm -rf *는 위험합니다"],

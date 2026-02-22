@@ -25,7 +25,7 @@ BLOCKED_PATTERNS = [
     (r"git\s+stash\s+clear", "git stash clear는 모든 스태시를 삭제합니다"),
 
     # 시스템/파일 파괴 방지
-    (r"\brm\s+-rf\s+/", "rm -rf /는 매우 위험합니다"),
+    (r"\brm\s+-rf\s+/\s*(;|&&|\|\||$)", "rm -rf /는 매우 위험합니다"),
     (r"\brm\s+-rf\s+~", "rm -rf ~는 홈 디렉토리를 삭제합니다"),
     (r"\brm\s+-rf\s+\.\.", "rm -rf ..은 상위 디렉토리를 삭제할 수 있습니다"),
     (r"\brm\s+-rf\s+\*", "rm -rf *는 위험합니다"),
