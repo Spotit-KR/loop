@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf *)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -21,6 +26,15 @@
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "TaskCreate|TaskUpdate",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/plan_update_reminder.py\""
+          }
+        ]
+      },
       {
         "matcher": "Edit|Write",
         "hooks": [

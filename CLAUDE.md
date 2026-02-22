@@ -2,6 +2,15 @@
 
 작업 계획 문서 작성 시 별도 지시가 없으면 docs/ 디렉토리에 마크다운 파일로 작성.
 
+## 작업 계획 프로세스
+
+모든 작업은 계획 → 실행 → 검증 순서로 진행합니다. 상세 규칙은 @docs/work-planning-rules.md 참고.
+
+- 작업 시작 전 `docs/plan/{작업명}/`에 plan.md, context.md, checklist.md 생성
+- TaskCreate/TaskUpdate로 진행 상황 추적
+- 매 단계 완료 시 plan.md 체크 표시 업데이트
+- 완료 전 checklist.md 필수 항목 (아키텍처 준수, 테스트 통과) 확인
+
 ## 구글 드라이브 (기획/PRD/할일)
 
 프로젝트 기획, PRD, 할일 등 비코드 문서는 구글 드라이브에서 관리합니다.
@@ -55,3 +64,5 @@ Domain, Application 레이어 코드 작성 시 반드시 TDD 사이클을 따�
 
 기능 구현 요청 시: 요구사항에서 동작 목록 도출 → 첫 동작의 테스트 작성·실패 확인 → 최소 구현 → 리팩토링 → 다음 동작 반복.
 Infrastructure/Presentation은 선택적, 설정·빌드·마이그레이션은 미적용.
+
+**예외**: `ArchitectureTest`는 ArchUnit(`@AnalyzeClasses` + `@ArchTest`)을 사용하며, TDD 대상이 아닙니다.
