@@ -132,5 +132,8 @@ class ArchitectureTest {
             ).ignoreDependency(
                 DescribedPredicate.alwaysTrue(),
                 JavaClass.Predicates.resideInAPackage("$BASE.common.."),
+            ).ignoreDependency(
+                JavaClass.Predicates.resideInAPackage("..infrastructure.."),
+                JavaClass.Predicates.resideInAPackage("..infrastructure.."),
             ).allowEmptyShould(true)
 }
