@@ -13,12 +13,23 @@ const EXEMPT_EXTENSIONS = [
   ".xml",
 ]
 
+function normalizePath(filePath) {
+  return filePath.replace(/\\/g, "/")
+}
+
 function isExempt(filePath) {
+  const normalized = normalizePath(filePath)
+
   for (const pattern of EXEMPT_PATTERNS) {
-    if (filePath.includes(pattern)) return true
+    if (normalized.includes(pattern)) return true
   }
+
+  if (normalized.startsWith("docs/")) return true
+  if (normalized.startsWith(".claude/")) return true
+  if (normalized.startsWith(".opencode/")) return true
+
   for (const ext of EXEMPT_EXTENSIONS) {
-    if (filePath.endsWith(ext)) return true
+    if (normalized.endsWith(ext)) return true
   }
   return false
 }
@@ -75,8 +86,9 @@ export const WorkPlanEnforcer = async ({ directory }) => {
       if (filePaths.length === 0) return
 
       for (const filePath of filePaths) {
-        if (isExempt(filePath)) continue
-        if (!filePath.includes("/src/")) continue
+        const normalized = normalizePath(filePath)
+        if (isExempt(normalized)) continue
+        if (!/(^|\/)src\//.test(normalized)) continue
 
         if (!hasActivePlan(directory)) {
           throw new Error(
