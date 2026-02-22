@@ -79,6 +79,9 @@ dependencies {
     testImplementation("io.mockk:mockk:${property("mockkVersion")}")
     testImplementation("com.ninja-squad:springmockk:5.0.1")
 
+    // Test - ArchUnit
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.1")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

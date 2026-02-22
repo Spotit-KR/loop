@@ -19,7 +19,7 @@ Domain이 중심이며, 나머지 레이어가 Domain에 의존합니다.
 
 ## 디렉토리 구조
 
-```
+```text
 kr.io.team.loop/
 ├── ServerApplication.kt
 ├── common/                        # 공통 모듈
@@ -57,7 +57,7 @@ kr.io.team.loop/
 
 ### Command (CUD) — Application DTO 없는 경우 (기본)
 
-```
+```txt
 Controller: CreateTaskRequest(Primitive) → TaskCommand.Create(VO) 변환
     ↓
 Service: TaskCommand.Create 수신 → Repository에 전달, 트랜잭션 관리
@@ -71,7 +71,7 @@ Controller: Task → TaskResponse(Primitive) 변환 후 반환
 
 ### Command (CUD) — Application DTO 있는 경우
 
-```
+```txt
 Controller: RegisterRequest(Primitive) → AuthCommand.Register(VO) 변환
     ↓
 Service: AuthCommand.Register 수신 → 비즈니스 로직 수행
@@ -83,7 +83,7 @@ Controller: AuthTokenDto → AuthTokenResponse(Primitive) 변환 후 반환
 
 ### Query (R)
 
-```
+```txt
 Controller: query params(Primitive) → TaskQuery(VO) 변환
     ↓
 Service: TaskQuery 수신 → Repository에 전달
@@ -145,12 +145,15 @@ Controller: List<Task> → List<TaskResponse>(Primitive) 변환 후 반환
 | Application | 단위 테스트 | 필수 | 없음 | MockK으로 의존성 Mocking |
 | Infrastructure | 통합 테스트 | 선택적 (사람이 판단) | 있음 | H2 DB, @SpringBootTest |
 | Presentation | 통합 테스트 | 선택적 (사람이 판단) | 있음 | @WebMvcTest + MockK |
+| Architecture | ArchUnit | 필수 | 없음 | JUnit5 `@ArchTest` (Kotest 예외) |
 
 테스트 클래스명: `대상클래스명Test` (예: `TaskServiceTest`)
 
+> **참고**: `ArchitectureTest`는 ArchUnit의 `@AnalyzeClasses` + `@ArchTest`를 사용하므로 JUnit5 스타일로 작성합니다. 이 프로젝트에서 유일하게 Kotest BehaviorSpec이 아닌 JUnit5 스타일 테스트입니다.
+
 ## 완전 예시: task BC
 
-```
+```kotlin
 task/
 ├── presentation/
 │   ├── request/
@@ -183,4 +186,3 @@ task/
 ## 완전 예시: auth BC (task BC와의 차이점)
 
 보안 필드 제외가 필요하므로 `application/dto/AuthTokenDto.kt`가 추가되고, Service가 Entity 대신 DTO를 반환합니다. 나머지 구조는 task BC와 동일합니다.
-
