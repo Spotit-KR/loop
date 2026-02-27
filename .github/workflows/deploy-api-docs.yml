@@ -1,0 +1,77 @@
+name: Deploy API Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/main/resources/schema/**'
+      - 'spectaql/**'
+      - 'Dockerfile.api-docs'
+  workflow_dispatch:
+
+env:
+  HARBOR_REGISTRY: harbor.homelab.robinjoon.xyz
+  IMAGE_NAME: loop/server-docs
+
+jobs:
+  build-and-push:
+    runs-on: [self-hosted, macOS, ARM64]
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tag }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate image tag
+        id: meta
+        run: |
+          TAG=$(date +'%Y%m%d')-${{ github.run_number }}
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.HARBOR_REGISTRY }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Build and push API docs image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.api-docs
+          push: true
+          tags: |
+            ${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+            ${{ env.HARBOR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  update-helm:
+    runs-on: [self-hosted, macOS, ARM64]
+    needs: build-and-push
+
+    steps:
+      - name: Checkout Helm repository
+        uses: actions/checkout@v4
+        with:
+          repository: Spotit-KR/loop-helm
+          token: ${{ secrets.HELM_REPO_PAT }}
+          path: helm-repo
+
+      - name: Update image tag
+        run: |
+          cd helm-repo
+          sed -i '' 's/tag: ".*"/tag: "${{ needs.build-and-push.outputs.image-tag }}"/' server-docs/values/values-prod.yaml
+
+      - name: Commit and push changes
+        run: |
+          cd helm-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add server-docs/values/values-prod.yaml
+          git commit -m "chore: update server-docs prod image tag to ${{ needs.build-and-push.outputs.image-tag }}"
+          git push
