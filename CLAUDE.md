@@ -19,8 +19,17 @@
 - 기능 구현 시 PRD나 회의록을 참고해야 하면 구글 드라이브에서 먼저 조회
 - 새 기획/PRD/할일 문서 작성이 필요하면 해당 폴더에 Google Docs로 생성
 - 참고 문서:
-  - `PRD` (ID: `1Pb_Ma6mfLJZpD3gpUVaqPkLdBsyAfPFuwY6AIy6J19A`) — 제품 요구사항 정의서
   - `회의록` (ID: `1gPNIO7JsdH1Iq8FFI_SAIm5SOWBJtLE2p8OzPSSkHfg`) — 회의 내용 기록
+
+## 수정 금지 코드
+
+다음 경로의 코드는 학습/참고용이므로 **절대 수정하지 않습니다**:
+
+- `src/main/kotlin/kr/io/team/loop/learning/` — DGS GraphQL 학습 예제 코드
+- `src/test/kotlin/kr/io/team/loop/learning/` — DGS GraphQL 학습 테스트 코드
+- `src/main/resources/schema/learning.graphqls` — 학습용 GraphQL 스키마
+- `docs/learning/` — 학습 가이드 문서
+- `docs/dgs-graphql-execution.md` — GraphQL 실행 파이프라인 문서
 
 ## Git 브랜치 규칙
 
@@ -33,11 +42,11 @@ Security 설정 코드 작성 전 @docs/spring-security-7.md 참고.
 
 - Domain Layer는 외부 의존성 없이 순수 Kotlin 코드로 작성
 - Presentation, Application, Infrastructure 모두 Domain에 직접 의존
-- Presentation은 Application(Service 호출)과 Domain(Command, Query, VO, Entity)에 의존
+- Presentation(DGS DataFetcher)은 Application(Service 호출)과 Domain(Command, Query, VO, Entity)에 의존
 - Infrastructure는 Domain(Repository 인터페이스)에만 의존
 - common을 제외한 다른 BC의 코드를 직접 참조하지 않음
 - BC 간 공유 VO는 `common/domain/`에 위치
-- Domain의 Command/Query가 Presentation 이후 모든 레이어의 공용 입력
+- Domain의 Command/Query가 DataFetcher 이후 모든 레이어의 공용 입력
 - Service는 기본적으로 Entity를 직접 반환 (Application DTO는 필요시에만)
 
 ## 레이어 규칙 요약
@@ -49,9 +58,10 @@ Security 설정 코드 작성 전 @docs/spring-security-7.md 참고.
 - **Application dto/**: 집계/보안 필드 제외 등 변환이 필요할 때만 생성. 기본은 Service가 Entity 직접 반환
 - **Infrastructure persistence/**: Repository 구현체 + Exposed Table 정의. Table은 각 BC가 소유
 - **Infrastructure external/**: OpenFeign 클라이언트 (필요시에만)
-- **Presentation request/**: 클라이언트 요청 DTO (Primitive Type). Controller에서 Domain Command/Query로 변환
-- **Presentation response/**: 클라이언트 응답 DTO (Primitive Type). Entity 또는 Application DTO로부터 변환
-- **Presentation controller/**: Request→Command/Query 변환, Service 호출, Entity/DTO→Response 변환
+- **Presentation datafetcher/**: `@DgsComponent`. Codegen 생성 타입으로 인자 수신→Command/Query 변환, Service 호출, Entity/DTO 반환
+- **Presentation dataloader/**: `@DgsDataLoader`. N+1 방지가 필요한 관계형 필드에서만 도입
+- **GraphQL 스키마**: `src/main/resources/schema/{bc}.graphqls`에 BC별 Query, Mutation, 타입, Input 정의
+- **DGS Codegen 필수**: GraphQL 스키마의 Type, Input, Enum에 대응하는 Kotlin 클래스는 **반드시 DGS Codegen이 자동 생성**. 수동으로 만들지 않음
 - **Common**: 공유 VO(`domain/`), 공통 설정(`config/`). 필요한 것만 생성
 
 ## TDD
