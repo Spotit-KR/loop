@@ -37,18 +37,25 @@ extra["springCloudVersion"] = "2025.1.0"
 extra["exposedVersion"] = "1.0.0"
 extra["kotestVersion"] = "6.1.2"
 extra["mockkVersion"] = "1.14.9"
+extra["jjwtVersion"] = "0.12.6"
 
 dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-h2console")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("tools.jackson.module:jackson-module-kotlin")
+
+    // JWT
+    implementation("io.jsonwebtoken:jjwt-api:${property("jjwtVersion")}")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:${property("jjwtVersion")}")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:${property("jjwtVersion")}")
 
     // Exposed ORM
     implementation("org.jetbrains.exposed:exposed-spring-boot4-starter:${property("exposedVersion")}")
@@ -67,6 +74,7 @@ dependencies {
     // Test - Spring Boot
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("com.netflix.graphql.dgs:graphql-dgs-spring-graphql-starter-test")
 
@@ -101,12 +109,17 @@ kotlin {
 
 tasks.generateJava {
     schemaPaths.add("$projectDir/src/main/resources/graphql-client")
+    schemaPaths.add("$projectDir/src/main/resources/schema")
     packageName = "kr.io.team.loop.codegen"
-    generateClient = true
+    generateClient = false
 }
 
 ktlint {
     version = "1.8.0"
+    filter {
+        exclude { it.file.absolutePath.contains("/build/") }
+        exclude { it.file.absolutePath.contains("/learning/") }
+    }
 }
 
 tasks.withType<Test> {

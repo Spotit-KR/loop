@@ -1,0 +1,19 @@
+extend type Mutation {
+    register(input: RegisterInput!): AuthToken!
+    login(input: LoginInput!): AuthToken!
+}
+
+type AuthToken {
+    accessToken: String!
+}
+
+input RegisterInput {
+    loginId: String!
+    password: String!
+    nickname: String!
+}
+
+input LoginInput {
+    loginId: String!
+    password: String!
+}
