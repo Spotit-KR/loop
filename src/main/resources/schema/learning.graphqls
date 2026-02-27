@@ -1,0 +1,90 @@
+# =============================================================
+# DGS 학습용 GraphQL 스키마
+# =============================================================
+# GraphQL 스키마는 API의 "계약서"다.
+# 클라이언트가 무엇을 요청할 수 있는지, 서버가 무엇을 반환하는지 정의한다.
+#
+# 핵심 개념:
+#   - type Query    : 읽기 전용 조회 (HTTP GET 같은 것)
+#   - type Mutation  : 데이터 변경 (HTTP POST/PUT/DELETE 같은 것)
+#   - type           : 반환 데이터 구조 (DTO 같은 것)
+#   - input          : 입력 데이터 구조 (Request DTO 같은 것)
+#   - enum           : 열거형
+#   - !              : Non-null (필수값). 없으면 nullable
+#   - [Type]         : 리스트. [Type!]! = non-null 리스트 of non-null 아이템
+# =============================================================
+
+# ----- Query (조회) -----
+type Query {
+    # 단순 조회: ID로 단건 조회
+    show(id: ID!): Show
+
+    # 리스트 조회: 필터 조건 전달
+    shows(titleFilter: String): [Show!]!
+
+    # 인자 여러 개
+    actor(id: ID!): Actor
+
+    # 페이지네이션
+    showsPaged(page: Int = 0, size: Int = 10): ShowConnection!
+}
+
+# ----- Mutation (변경) -----
+type Mutation {
+    # 단순 생성
+    addShow(input: AddShowInput!): Show!
+
+    # 수정
+    updateShow(id: ID!, input: UpdateShowInput!): Show
+
+    # 별점 추가 (간단한 스칼라 인자)
+    addRating(showId: ID!, stars: Int!): Rating!
+}
+
+# ----- 타입 정의 -----
+type Show {
+    id: ID!
+    title: String!
+    releaseYear: Int
+
+    # 이 필드는 별도의 DataFetcher로 resolve된다 (N+1 문제 학습용)
+    actors: [Actor!]!
+
+    # 이 필드도 별도 DataFetcher (DataLoader 학습용)
+    ratings: [Rating!]!
+}
+
+type Actor {
+    id: ID!
+    name: String!
+
+    # Actor에서 출연작 역참조 (DataLoader 학습용)
+    shows: [Show!]!
+}
+
+type Rating {
+    stars: Int!
+    comment: String
+}
+
+# ----- 페이지네이션 타입 -----
+type ShowConnection {
+    content: [Show!]!
+    totalElements: Int!
+    totalPages: Int!
+    currentPage: Int!
+}
+
+# ----- Input 타입 -----
+# Input은 클라이언트 → 서버로 보내는 데이터 구조
+# type과 다르게 "input" 키워드를 사용해야 한다
+input AddShowInput {
+    title: String!
+    releaseYear: Int
+    actorIds: [ID!]
+}
+
+input UpdateShowInput {
+    title: String
+    releaseYear: Int
+}
