@@ -3,6 +3,7 @@ package kr.io.team.loop.common.config
 import com.netflix.graphql.dgs.context.DgsContext
 import com.netflix.graphql.dgs.internal.method.ArgumentResolver
 import graphql.schema.DataFetchingEnvironment
+import kr.io.team.loop.common.domain.exception.AuthenticationException
 import org.springframework.core.MethodParameter
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
@@ -28,7 +29,7 @@ class AuthorizeArgumentResolver(
         }
 
         if (authorize.require) {
-            throw IllegalArgumentException("Authentication required")
+            throw AuthenticationException("Authentication required")
         }
         return null
     }

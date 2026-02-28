@@ -3,6 +3,7 @@ package kr.io.team.loop.auth.domain.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import kr.io.team.loop.common.domain.exception.InvalidInputException
 
 class LoginIdTest :
     BehaviorSpec({
@@ -18,7 +19,7 @@ class LoginIdTest :
 
             When("빈 값이면") {
                 Then("예외가 발생한다") {
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<InvalidInputException> {
                         LoginId("")
                     }
                 }
@@ -26,7 +27,7 @@ class LoginIdTest :
 
             When("공백만 있으면") {
                 Then("예외가 발생한다") {
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<InvalidInputException> {
                         LoginId("   ")
                     }
                 }
@@ -34,7 +35,7 @@ class LoginIdTest :
 
             When("50자를 초과하면") {
                 Then("예외가 발생한다") {
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<InvalidInputException> {
                         LoginId("a".repeat(51))
                     }
                 }

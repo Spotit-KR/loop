@@ -13,6 +13,9 @@ import kr.io.team.loop.auth.domain.model.Nickname
 import kr.io.team.loop.auth.domain.repository.MemberRepository
 import kr.io.team.loop.common.config.JwtTokenProvider
 import kr.io.team.loop.common.domain.MemberId
+import kr.io.team.loop.common.domain.exception.AuthenticationException
+import kr.io.team.loop.common.domain.exception.DuplicateEntityException
+import kr.io.team.loop.common.domain.exception.EntityNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.Instant
 
@@ -60,7 +63,7 @@ class AuthServiceTest :
                 every { memberRepository.existsByLoginId(registerCommand.loginId) } returns true
 
                 Then("예외가 발생한다") {
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<DuplicateEntityException> {
                         authService.register(registerCommand)
                     }
                 }
@@ -85,7 +88,7 @@ class AuthServiceTest :
                 every { memberRepository.findByLoginId(LoginId("unknown")) } returns null
 
                 Then("예외가 발생한다") {
-                    shouldThrow<NoSuchElementException> {
+                    shouldThrow<EntityNotFoundException> {
                         authService.login(LoginId("unknown"), "password123")
                     }
                 }
@@ -96,7 +99,7 @@ class AuthServiceTest :
                 every { passwordEncoder.matches("wrongpassword", "encoded_password") } returns false
 
                 Then("예외가 발생한다") {
-                    shouldThrow<IllegalArgumentException> {
+                    shouldThrow<AuthenticationException> {
                         authService.login(LoginId("testuser"), "wrongpassword")
                     }
                 }
