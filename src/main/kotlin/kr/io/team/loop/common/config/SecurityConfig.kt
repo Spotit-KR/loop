@@ -21,6 +21,7 @@ class SecurityConfig {
             authorizeHttpRequests {
                 authorize("/graphql", permitAll)
                 authorize("/h2-console/**", permitAll)
+                authorize("/actuator/health/**", permitAll)
                 authorize(anyRequest, authenticated)
             }
             headers {

@@ -10,3 +10,14 @@ spring:
 
     exposed:
         generate-ddl: false
+
+management:
+    endpoint:
+        health:
+            probes:
+                enabled: true
+    health:
+        livenessstate:
+            enabled: true
+        readinessstate:
+            enabled: true
