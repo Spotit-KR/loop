@@ -1,0 +1,31 @@
+extend type Mutation {
+    "회원가입 후 액세스 토큰을 발급한다."
+    register(input: RegisterInput!): AuthToken!
+
+    "로그인 후 액세스 토큰을 발급한다."
+    login(input: LoginInput!): AuthToken!
+}
+
+"인증 토큰 응답"
+type AuthToken {
+    "JWT 액세스 토큰"
+    accessToken: String!
+}
+
+"회원가입 입력"
+input RegisterInput {
+    "로그인 ID (1~50자)"
+    loginId: String!
+    "비밀번호"
+    password: String!
+    "닉네임 (1~30자)"
+    nickname: String!
+}
+
+"로그인 입력"
+input LoginInput {
+    "로그인 ID"
+    loginId: String!
+    "비밀번호"
+    password: String!
+}
