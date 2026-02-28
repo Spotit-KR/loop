@@ -1,5 +1,8 @@
 "루트 Query 타입"
-type Query
+type Query {
+    "서버 상태 확인"
+    _health: Boolean
+}
 
 "루트 Mutation 타입"
 type Mutation
