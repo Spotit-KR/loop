@@ -1,0 +1,15 @@
+spring:
+    datasource:
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        driver-class-name: org.postgresql.Driver
+
+    h2:
+        console:
+            enabled: false
+
+app:
+    jwt:
+        secret: ${JWT_SECRET}
+        expiration-ms: ${JWT_EXPIRATION_MS:3600000}

@@ -25,4 +25,26 @@ class JjwtTokenProvider(
             .signWith(key)
             .compact()
     }
+
+    override fun validateToken(token: String): Boolean =
+        try {
+            Jwts
+                .parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+            true
+        } catch (_: Exception) {
+            false
+        }
+
+    override fun getMemberIdFromToken(token: String): Long =
+        Jwts
+            .parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .payload
+            .subject
+            .toLong()
 }
