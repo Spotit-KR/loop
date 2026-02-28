@@ -1,0 +1,5 @@
+"루트 Query 타입"
+type Query
+
+"루트 Mutation 타입"
+type Mutation

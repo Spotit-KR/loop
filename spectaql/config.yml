@@ -1,12 +1,13 @@
 spectaql:
-  targetDir: build/spectaql
+    targetDir: build/spectaql
 
 introspection:
-  schemaFile:
-    - src/main/resources/schema/auth.graphqls
+    schemaFile:
+        - src/main/resources/schema/schema.graphqls
+        - src/main/resources/schema/auth.graphqls
     # - src/main/resources/schema/task.graphqls
 
 info:
-  title: Loop GraphQL API
-  description: Loop 프로젝트 GraphQL API 레퍼런스
-  x-url: https://api.loop.example.com/graphql
+    title: Loop GraphQL API
+    description: Loop 프로젝트 GraphQL API 레퍼런스
+    x-url: https://api.loop.example.com/graphql
