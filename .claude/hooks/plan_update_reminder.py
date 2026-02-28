@@ -5,8 +5,14 @@ TaskCreate/TaskUpdate 호출 후 plan 문서 관련 피드백을 제공합니다
 
 - TaskCreate 후: plan 디렉토리·문서 생성 여부 확인 리마인드
 - TaskUpdate(status=completed) 후: plan.md 체크 표시 업데이트 리마인드
+
+예외 (work-planning-rules.md 기준):
+- 문서 작성·수정 관련 태스크
+- 설정 파일 변경 관련 태스크
+- 빌드·CI/CD 설정 관련 태스크
 """
 import json
+import re
 import sys
 import glob
 import os
@@ -15,6 +21,43 @@ PROJECT_DIR = os.environ.get("CLAUDE_PROJECT_DIR", "")
 PLAN_BASE = os.path.join(PROJECT_DIR, "docs", "plan") if PROJECT_DIR else ""
 
 REQUIRED_PLAN_FILES = ["plan.md", "context.md", "checklist.md"]
+
+# 비코드(예외) 작업 판별 패턴 (work-planning-rules.md 예외 기준)
+# 태스크 subject/description에 이 문자열이 포함되면 계획 문서 리마인더를 건너뜀
+EXEMPT_FILE_PATTERNS = [
+    "/docs/", "docs/",
+    "/.claude/", ".claude/",
+    "README", "CLAUDE.md",
+    ".gradle.kts", ".gradle",
+    ".yml", ".yaml",
+    ".properties", ".toml", ".xml",
+    "Dockerfile", "docker-compose",
+    ".github/workflows",
+]
+
+EXEMPT_KEYWORD_RE = re.compile(
+    r"문서|설정\s*파일|빌드|CI/?CD|배포|deploy|hook|훅",
+    re.I,
+)
+
+
+def is_exempt_task(tool_input):
+    """태스크가 작업 계획 프로세스 예외 대상인지 판별.
+
+    subject/description에 비코드 작업(문서, 설정, 빌드) 관련 패턴이 있으면 예외.
+    """
+    subject = tool_input.get("subject", "")
+    description = tool_input.get("description", "")
+    text = f"{subject} {description}"
+
+    for pattern in EXEMPT_FILE_PATTERNS:
+        if pattern in text:
+            return True
+
+    if EXEMPT_KEYWORD_RE.search(text):
+        return True
+
+    return False
 
 
 def find_active_plan_dirs():
@@ -47,6 +90,9 @@ def find_active_plan_dirs():
 
 
 def handle_task_create(tool_input):
+    if is_exempt_task(tool_input):
+        return None
+
     subject = tool_input.get("subject", "")
     active_dirs = find_active_plan_dirs()
     if not active_dirs:
@@ -60,6 +106,9 @@ def handle_task_create(tool_input):
 
 
 def handle_task_update(tool_input):
+    if is_exempt_task(tool_input):
+        return None
+
     status = tool_input.get("status", "")
     if status != "completed":
         return None

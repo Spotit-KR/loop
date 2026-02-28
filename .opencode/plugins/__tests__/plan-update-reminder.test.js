@@ -81,4 +81,37 @@ describe("PlanUpdateReminder", () => {
     const workspace = createWorkspace()
     await expect(runEvent(workspace, "completed", "1단계")).resolves.toBeUndefined()
   })
+
+  describe("exempt tasks", () => {
+    it("skips pending reminder for docs-related task", async () => {
+      const workspace = createWorkspace()
+      await expect(runEvent(workspace, "pending", "CLAUDE.md 문서 수정")).resolves.toBeUndefined()
+    })
+
+    it("skips pending reminder for config file task", async () => {
+      const workspace = createWorkspace()
+      await expect(runEvent(workspace, "pending", "application.yml 설정 변경")).resolves.toBeUndefined()
+    })
+
+    it("skips pending reminder for build/CI task", async () => {
+      const workspace = createWorkspace()
+      await expect(runEvent(workspace, "pending", "CI/CD 파이프라인 수정")).resolves.toBeUndefined()
+    })
+
+    it("skips pending reminder for hook task", async () => {
+      const workspace = createWorkspace()
+      await expect(runEvent(workspace, "pending", ".claude/ 훅 설정 수정")).resolves.toBeUndefined()
+    })
+
+    it("skips completed reminder for exempt task even with active plan", async () => {
+      const workspace = createWorkspace()
+      createPlan(workspace, "active")
+      await expect(runEvent(workspace, "completed", "docs/ 문서 업데이트")).resolves.toBeUndefined()
+    })
+
+    it("still warns for non-exempt code task", async () => {
+      const workspace = createWorkspace()
+      await expect(runEvent(workspace, "pending", "인증 서비스 구현")).rejects.toThrow("Todo 생성 감지")
+    })
+  })
 })

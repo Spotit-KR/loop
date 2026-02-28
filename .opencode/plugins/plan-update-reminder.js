@@ -1,5 +1,34 @@
 import { findPrimaryActivePlan } from "../lib/work-plan-utils.js"
 
+// 비코드(예외) 작업 판별 패턴 (work-planning-rules.md 예외 기준)
+// 태스크 subject/description에 이 문자열이 포함되면 계획 문서 리마인더를 건너뜀
+const EXEMPT_FILE_PATTERNS = [
+  "/docs/", "docs/",
+  "/.claude/", ".claude/",
+  "/.opencode/", ".opencode/",
+  "README", "CLAUDE.md",
+  ".gradle.kts", ".gradle",
+  ".yml", ".yaml",
+  ".properties", ".toml", ".xml",
+  "Dockerfile", "docker-compose",
+  ".github/workflows",
+]
+
+const EXEMPT_KEYWORD_RE = /문서|설정\s*파일|빌드|CI\/?CD|배포|deploy|hook|훅/i
+
+function isExemptTask(todo) {
+  const content = todo?.content || ""
+  const text = content
+
+  for (const pattern of EXEMPT_FILE_PATTERNS) {
+    if (text.includes(pattern)) return true
+  }
+
+  if (EXEMPT_KEYWORD_RE.test(text)) return true
+
+  return false
+}
+
 export const PlanUpdateReminder = async ({ directory }) => {
   return {
     event: async (input) => {
@@ -7,6 +36,8 @@ export const PlanUpdateReminder = async ({ directory }) => {
 
       const todo = input.event.properties
       const status = todo?.status
+
+      if (isExemptTask(todo)) return
 
       // Todo 완료 시: plan.md 체크 표시 업데이트 리마인드
       if (status === "completed") {
