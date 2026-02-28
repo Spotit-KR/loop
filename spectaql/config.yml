@@ -3,10 +3,8 @@ spectaql:
 
 introspection:
   schemaFile:
-    - src/main/resources/schema/learning.graphqls
-    # BC별 스키마 추가 시 여기에 경로 추가하고 learning.graphqls는 제거
+    - src/main/resources/schema/auth.graphqls
     # - src/main/resources/schema/task.graphqls
-    # - src/main/resources/schema/auth.graphqls
 
 info:
   title: Loop GraphQL API
