@@ -15,7 +15,7 @@
 # =============================================================
 
 # ----- Query (조회) -----
-type Query {
+extend type Query {
     # 단순 조회: ID로 단건 조회
     show(id: ID!): Show
 
@@ -30,7 +30,7 @@ type Query {
 }
 
 # ----- Mutation (변경) -----
-type Mutation {
+extend type Mutation {
     # 단순 생성
     addShow(input: AddShowInput!): Show!
 
