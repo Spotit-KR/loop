@@ -8,6 +8,5 @@ value class GoalTitle(
 ) {
     init {
         if (value.isBlank()) throw InvalidInputException("GoalTitle must not be blank")
-        if (value.length > 200) throw InvalidInputException("GoalTitle must not exceed 200 characters")
     }
 }

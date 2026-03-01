@@ -33,19 +33,11 @@ class GoalTitleTest :
                 }
             }
 
-            When("200자를 초과하면") {
-                Then("예외가 발생한다") {
-                    shouldThrow<InvalidInputException> {
-                        GoalTitle("가".repeat(201))
-                    }
-                }
-            }
-
-            When("200자이면") {
-                val title = GoalTitle("가".repeat(200))
+            When("긴 문자열이면") {
+                val title = GoalTitle("가".repeat(1000))
 
                 Then("정상 생성된다") {
-                    title.value.length shouldBe 200
+                    title.value.length shouldBe 1000
                 }
             }
         }

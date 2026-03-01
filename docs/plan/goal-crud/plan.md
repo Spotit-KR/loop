@@ -11,3 +11,4 @@
 - [x] 7단계: Presentation — GoalDataFetcher
 - [x] 8단계: 전체 테스트 통과 검증
 - [x] 9단계: GoalTable에 memberId 인덱스 명시
+- [x] 10단계: GoalTitle 글자수 제한 제거 (blank 검증만 유지)
