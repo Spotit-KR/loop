@@ -47,12 +47,10 @@ def test(name, exit_code, expected_code, stderr=""):
 
 
 def create_active_plan(plan_dir):
-    """3종 문서를 모두 생성하여 활성 계획을 만든다."""
+    """2종 문서를 모두 생성하여 활성 계획을 만든다."""
     os.makedirs(plan_dir, exist_ok=True)
     with open(os.path.join(plan_dir, "plan.md"), "w") as f:
         f.write("# Test Plan\n\n- [ ] 1단계: 구현\n- [ ] 2단계: 검증\n")
-    with open(os.path.join(plan_dir, "context.md"), "w") as f:
-        f.write("# Test Context\n\n## 배경\n테스트용\n")
     with open(os.path.join(plan_dir, "checklist.md"), "w") as f:
         f.write("# Test Checklist\n\n- [ ] 테스트 통과\n")
 
@@ -158,8 +156,8 @@ def main():
         )
         test("백슬래시 docs 경로 → 허용", code, 0)
 
-        # ── 활성 계획 존재 (3종 문서 완비) ────────────────────────
-        print("\n[활성 계획 존재 - 3종 문서 완비]")
+        # ── 활성 계획 존재 (2종 문서 완비) ────────────────────────
+        print("\n[활성 계획 존재 - 2종 문서 완비]")
 
         create_active_plan(plan_dir)
 
@@ -168,23 +166,12 @@ def main():
             {"file_path": f"{tmp_dir}/src/main/kotlin/Task.kt"},
             project_dir=tmp_dir,
         )
-        test("3종 문서 완비 + 미완료 항목 → src/ 수정 허용", code, 0)
+        test("2종 문서 완비 + 미완료 항목 → src/ 수정 허용", code, 0)
 
-        # ── 3종 문서 불완전 ──────────────────────────────────
-        print("\n[3종 문서 불완전 - 활성 계획 아님]")
+        # ── 2종 문서 불완전 ──────────────────────────────────
+        print("\n[2종 문서 불완전 - 활성 계획 아님]")
 
-        # context.md 삭제
-        os.remove(os.path.join(plan_dir, "context.md"))
-        code, err = run_hook(
-            "Edit",
-            {"file_path": f"{tmp_dir}/src/main/kotlin/Task.kt"},
-            project_dir=tmp_dir,
-        )
-        test("context.md 없으면 → 차단", code, 2, err)
-
-        # context.md 복구, checklist.md 삭제
-        with open(os.path.join(plan_dir, "context.md"), "w") as f:
-            f.write("# Context\n")
+        # checklist.md 삭제
         os.remove(os.path.join(plan_dir, "checklist.md"))
         code, err = run_hook(
             "Edit",
@@ -223,7 +210,7 @@ def main():
         # ── Bash 우회 차단 ──────────────────────────────────
         print("\n[Bash 우회 차단 - 계획 없는 상태]")
 
-        # 3종 완비 상태 제거
+        # 2종 완비 상태 제거
         shutil.rmtree(plan_dir, ignore_errors=True)
 
         code, err = run_hook(

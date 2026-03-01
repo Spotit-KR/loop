@@ -18,7 +18,6 @@ function createWorkspace({
   writeFileSync(join(planDir, "plan.md"), planContent, "utf-8")
 
   if (withRequiredDocs) {
-    writeFileSync(join(planDir, "context.md"), "context", "utf-8")
     writeFileSync(join(planDir, "checklist.md"), "checklist", "utf-8")
   }
 

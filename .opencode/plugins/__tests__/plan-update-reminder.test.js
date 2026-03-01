@@ -16,7 +16,6 @@ function createPlan(workspace, name, { content = "- [ ] 1단계\n", withRequired
   writeFileSync(planMdPath, content, "utf-8")
 
   if (withRequiredDocs) {
-    writeFileSync(join(planDir, "context.md"), "context", "utf-8")
     writeFileSync(join(planDir, "checklist.md"), "checklist", "utf-8")
   }
 
@@ -24,7 +23,6 @@ function createPlan(workspace, name, { content = "- [ ] 1단계\n", withRequired
     const targetTime = new Date(updatedAt)
     utimesSync(planMdPath, targetTime, targetTime)
     if (withRequiredDocs) {
-      utimesSync(join(planDir, "context.md"), targetTime, targetTime)
       utimesSync(join(planDir, "checklist.md"), targetTime, targetTime)
     }
   }

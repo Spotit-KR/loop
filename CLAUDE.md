@@ -4,9 +4,11 @@
 
 ## 작업 계획 프로세스
 
-모든 작업은 계획 → 실행 → 검증 순서로 진행합니다. 상세 규칙은 @docs/work-planning-rules.md 참고.
+모든 코드 작업은 이슈 생성 → 계획 → 실행 → 검증 순서로 진행합니다. 상세 규칙은 @docs/work-planning-rules.md 참고.
 
-- 작업 시작 전 `docs/plan/{작업명}/`에 plan.md, context.md, checklist.md 생성
+- 코드 작업 요청 시 `gh issue create`로 GitHub 이슈를 먼저 생성 (라벨: feature/bug/refactor/chore)
+- 이슈 번호(#N)를 계획 디렉토리(`docs/plan/#N-{작업명}/`)와 브랜치(`ticket/#N`)에 활용
+- `docs/plan/#N-{작업명}/`에 plan.md, checklist.md 생성 (작업 맥락은 이슈 본문, 진행 중 변경사항은 이슈 댓글에 기록)
 - TaskCreate/TaskUpdate로 진행 상황 추적
 - 매 단계 완료 시 plan.md 체크 표시 업데이트
 - 완료 전 checklist.md 필수 항목 (아키텍처 준수, 테스트 통과) 확인

@@ -4,7 +4,7 @@ Claude Code 훅: 작업 계획 강제
 소스 코드(src/) 수정 시 docs/plan/ 하위에 활성 작업 계획이 존재하는지 검사합니다.
 활성 계획이 없으면 차단(exit code 2)하여 계획 문서를 먼저 생성하도록 유도합니다.
 
-활성 계획 조건: plan.md, context.md, checklist.md 3종이 모두 존재하고,
+활성 계획 조건: plan.md, checklist.md 2종이 모두 존재하고,
 plan.md에 미완료 항목(- [ ])이 있어야 합니다.
 
 예외 (work-planning-rules.md 기준):
@@ -25,7 +25,7 @@ import sys
 PROJECT_DIR = os.environ.get("CLAUDE_PROJECT_DIR", "")
 PLAN_BASE = os.path.join(PROJECT_DIR, "docs", "plan") if PROJECT_DIR else ""
 
-REQUIRED_PLAN_FILES = ["plan.md", "context.md", "checklist.md"]
+REQUIRED_PLAN_FILES = ["plan.md", "checklist.md"]
 
 # 예외 경로 패턴: 이 문자열이 파일 경로에 포함되면 검사하지 않음
 EXEMPT_PATTERNS = [
@@ -98,7 +98,7 @@ def is_src_path(file_path):
 def has_active_plan():
     """docs/plan/ 하위에 활성 작업 계획이 존재하는지 확인.
 
-    활성 계획 조건: plan.md, context.md, checklist.md 3종 모두 존재 + plan.md에 미완료 항목.
+    활성 계획 조건: plan.md, checklist.md 2종 모두 존재 + plan.md에 미완료 항목.
     """
     if not PLAN_BASE or not os.path.isdir(PLAN_BASE):
         return False
@@ -113,7 +113,7 @@ def has_active_plan():
         if not os.path.isdir(plan_dir):
             continue
 
-        # 3종 문서 존재 확인
+        # 2종 문서 존재 확인
         if not all(
             os.path.isfile(os.path.join(plan_dir, f)) for f in REQUIRED_PLAN_FILES
         ):
@@ -156,7 +156,7 @@ def block_exit():
     """차단 메시지를 출력하고 종료."""
     print(
         "[work-plan] 소스 코드 수정이 차단되었습니다. "
-        "docs/plan/{작업명}/ 에 plan.md, context.md, checklist.md 를 먼저 생성하세요. "
+        "docs/plan/{작업명}/ 에 plan.md, checklist.md 를 먼저 생성하세요. "
         "(docs/work-planning-rules.md 참고)",
         file=sys.stderr,
     )

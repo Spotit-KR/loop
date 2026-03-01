@@ -57,7 +57,7 @@ export const PlanUpdateReminder = async ({ directory }) => {
           const subject = todo?.content || ""
           throw new Error(
             `[plan] Todo 생성 감지: "${subject}"\n` +
-              `docs/plan/{작업명}/ 에 plan.md, context.md, checklist.md 를 생성했는지 확인하세요. ` +
+              `docs/plan/{작업명}/ 에 plan.md, checklist.md 를 생성했는지 확인하세요. ` +
               `(docs/work-planning-rules.md 참고)`
           )
         }
