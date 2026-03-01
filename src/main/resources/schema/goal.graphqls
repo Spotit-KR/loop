@@ -1,0 +1,41 @@
+extend type Query {
+    "현재 사용자의 목표 목록을 조회한다."
+    myGoals: [Goal!]!
+}
+
+extend type Mutation {
+    "새 목표를 생성한다. (인증 필수)"
+    createGoal(input: CreateGoalInput!): Goal!
+
+    "목표 제목을 수정한다. (본인 목표만)"
+    updateGoal(input: UpdateGoalInput!): Goal!
+
+    "목표를 삭제한다. (본인 목표만)"
+    deleteGoal(id: ID!): Boolean!
+}
+
+"목표"
+type Goal {
+    "목표 ID"
+    id: ID!
+    "목표 제목"
+    title: String!
+    "생성일시"
+    createdAt: String!
+    "수정일시"
+    updatedAt: String
+}
+
+"목표 생성 입력"
+input CreateGoalInput {
+    "목표 제목 (1~200자)"
+    title: String!
+}
+
+"목표 수정 입력"
+input UpdateGoalInput {
+    "수정할 목표 ID"
+    id: ID!
+    "새 목표 제목 (1~200자)"
+    title: String!
+}
