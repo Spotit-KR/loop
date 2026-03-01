@@ -20,7 +20,7 @@ import os
 PROJECT_DIR = os.environ.get("CLAUDE_PROJECT_DIR", "")
 PLAN_BASE = os.path.join(PROJECT_DIR, "docs", "plan") if PROJECT_DIR else ""
 
-REQUIRED_PLAN_FILES = ["plan.md", "context.md", "checklist.md"]
+REQUIRED_PLAN_FILES = ["plan.md", "checklist.md"]
 
 # 비코드(예외) 작업 판별 패턴 (work-planning-rules.md 예외 기준)
 # 태스크 subject/description에 이 문자열이 포함되면 계획 문서 리마인더를 건너뜀
@@ -63,7 +63,7 @@ def is_exempt_task(tool_input):
 def find_active_plan_dirs():
     """활성 작업 계획 디렉토리 목록 반환.
 
-    활성 계획 조건: plan.md, context.md, checklist.md 3종 모두 존재 + plan.md에 미완료 항목.
+    활성 계획 조건: plan.md, checklist.md 2종 모두 존재 + plan.md에 미완료 항목.
     """
     if not PLAN_BASE or not os.path.isdir(PLAN_BASE):
         return []
@@ -76,7 +76,7 @@ def find_active_plan_dirs():
         plan_dir = os.path.join(PLAN_BASE, entry)
         if not os.path.isdir(plan_dir):
             continue
-        # 3종 문서 존재 확인
+        # 2종 문서 존재 확인
         if not all(
             os.path.isfile(os.path.join(plan_dir, f)) for f in REQUIRED_PLAN_FILES
         ):
@@ -98,7 +98,7 @@ def handle_task_create(tool_input):
     if not active_dirs:
         msg = (
             f"[plan] TaskCreate 감지: \"{subject}\"\n"
-            f"docs/plan/{{작업명}}/ 에 plan.md, context.md, checklist.md 를 생성했는지 확인하세요. "
+            f"docs/plan/{{작업명}}/ 에 plan.md, checklist.md 를 생성했는지 확인하세요. "
             f"(docs/work-planning-rules.md 참고)"
         )
         return msg

@@ -78,7 +78,7 @@ function ensureActivePlan(directory) {
 
   throw new Error(
     `[work-plan] 소스 코드 수정이 차단되었습니다. ` +
-      `docs/plan/{작업명}/ 에 plan.md, context.md, checklist.md 를 먼저 생성하세요. ` +
+      `docs/plan/{작업명}/ 에 plan.md, checklist.md 를 먼저 생성하세요. ` +
       `(docs/work-planning-rules.md 참고)`
   )
 }

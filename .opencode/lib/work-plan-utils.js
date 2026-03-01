@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "fs"
 import { join, resolve } from "path"
 
-const REQUIRED_PLAN_FILES = ["plan.md", "context.md", "checklist.md"]
+const REQUIRED_PLAN_FILES = ["plan.md", "checklist.md"]
 
 function hasUncheckedItems(content) {
   return content.includes("- [ ]")
