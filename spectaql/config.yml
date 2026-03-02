@@ -6,6 +6,7 @@ introspection:
         - src/main/resources/schema/schema.graphqls
         - src/main/resources/schema/auth.graphqls
         - src/main/resources/schema/goal.graphqls
+        - src/main/resources/schema/task.graphqls
     # - src/main/resources/schema/task.graphqls
 
 info:

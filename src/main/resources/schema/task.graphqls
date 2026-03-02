@@ -1,0 +1,81 @@
+extend type Query {
+    "현재 사용자의 할일 목록을 조회한다. 필터 조건은 AND로 결합된다."
+    myTasks(
+        "할일 조회 필터"
+        filter: TaskFilter!
+    ): [Task!]!
+}
+
+extend type Mutation {
+    "새 할일을 생성한다. (인증 필수)"
+    createTask(
+        "생성할 할일 정보"
+        input: CreateTaskInput!
+    ): Task!
+
+    "할일의 완료/미완료 상태를 변경한다. (본인 할일만)"
+    updateTaskStatus(
+        "상태 변경 정보"
+        input: UpdateTaskStatusInput!
+    ): Task!
+
+    "할일을 삭제한다. (본인 할일만)"
+    deleteTask(
+        "삭제할 할일 ID"
+        id: ID!
+    ): Boolean!
+}
+
+"""할일"""
+type Task {
+    "할일 ID"
+    id: ID!
+    "할일 제목 (1~200자)"
+    title: String!
+    "할일 상태"
+    status: TaskStatus!
+    "소속 목표 ID"
+    goalId: ID!
+    "할일 날짜 (YYYY-MM-DD)"
+    taskDate: String!
+    "생성일시"
+    createdAt: String!
+    "수정일시"
+    updatedAt: String
+}
+
+"""할일 상태"""
+enum TaskStatus {
+    "미완료"
+    TODO
+    "완료"
+    DONE
+}
+
+"""할일 조회 필터. 모든 조건은 선택적이며 AND로 결합된다."""
+input TaskFilter {
+    "목표별 필터"
+    goalId: ID
+    "시작 날짜 (YYYY-MM-DD, inclusive)"
+    startDate: String
+    "종료 날짜 (YYYY-MM-DD, inclusive)"
+    endDate: String
+}
+
+"""할일 생성 입력"""
+input CreateTaskInput {
+    "할일 제목 (1~200자, 필수)"
+    title: String!
+    "소속 목표 ID (필수)"
+    goalId: ID!
+    "할일 날짜 (YYYY-MM-DD, 필수)"
+    date: String!
+}
+
+"""할일 상태 변경 입력"""
+input UpdateTaskStatusInput {
+    "변경할 할일 ID"
+    id: ID!
+    "변경할 상태"
+    status: TaskStatus!
+}
