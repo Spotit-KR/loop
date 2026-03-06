@@ -70,5 +70,8 @@ class GoalDataFetcher(
             title = title.value,
             createdAt = createdAt.toString(),
             updatedAt = updatedAt?.toString(),
+            totalTaskCount = 0,
+            completedTaskCount = 0,
+            achievementRate = 0.0,
         )
 }

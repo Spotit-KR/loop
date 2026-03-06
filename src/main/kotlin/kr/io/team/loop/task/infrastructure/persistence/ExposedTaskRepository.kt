@@ -15,6 +15,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -81,6 +82,15 @@ class ExposedTaskRepository : TaskRepository {
             .where { TaskTable.taskId eq id.value }
             .singleOrNull()
             ?.toTask()
+
+    override fun findAllByGoalIds(goalIds: Set<GoalId>): List<Task> {
+        if (goalIds.isEmpty()) return emptyList()
+        val goalIdValues = goalIds.map { it.value }
+        return TaskTable
+            .selectAll()
+            .where { TaskTable.goalId inList goalIdValues }
+            .map { it.toTask() }
+    }
 
     private fun ResultRow.toTask(): Task =
         Task(
