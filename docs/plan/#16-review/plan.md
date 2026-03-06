@@ -11,3 +11,4 @@
 - [x] Step 4: Presentation Layer — ReviewDataFetcher
 - [x] Step 5: 검증 — 전체 테스트 통과, 빌드 성공
 - [x] Step 6: Flyway 마이그레이션 JSONB 복원 (TIMESTAMPTZ는 H2 미지원, 표준 SQL 유지)
+- [x] Step 7: ReviewService.findAll 리팩토링 — 함수형 스타일로 정리

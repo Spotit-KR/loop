@@ -27,14 +27,9 @@ class ReviewService(
 
     @Transactional(readOnly = true)
     fun findAll(query: ReviewQuery): List<Review> {
-        val stepType = query.stepType
-        val dbQuery = if (stepType != null) query.copy(stepType = null) else query
-        val reviews = reviewRepository.findAll(dbQuery)
-        return if (stepType != null) {
-            reviews.filter { it.containsStepType(stepType) }
-        } else {
-            reviews
-        }
+        val reviews = reviewRepository.findAll(query.copy(stepType = null))
+        val stepType = query.stepType ?: return reviews
+        return reviews.filter { it.containsStepType(stepType) }
     }
 
     @Transactional(readOnly = true)
