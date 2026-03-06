@@ -1,8 +1,10 @@
 package kr.io.team.loop.task.application.service
 
+import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.EntityNotFoundException
+import kr.io.team.loop.task.domain.model.GoalTaskStats
 import kr.io.team.loop.task.domain.model.Task
 import kr.io.team.loop.task.domain.model.TaskCommand
 import kr.io.team.loop.task.domain.model.TaskQuery
@@ -33,6 +35,9 @@ class TaskService(
         }
         return taskRepository.updateStatus(command)
     }
+
+    @Transactional(readOnly = true)
+    fun getStatsByGoalIds(goalIds: Set<GoalId>): Map<GoalId, GoalTaskStats> = taskRepository.countByGoalIds(goalIds)
 
     @Transactional
     fun delete(

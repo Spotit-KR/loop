@@ -3,21 +3,28 @@ package kr.io.team.loop.task.infrastructure.persistence
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.common.domain.TaskId
+import kr.io.team.loop.task.domain.model.GoalTaskStats
 import kr.io.team.loop.task.domain.model.Task
 import kr.io.team.loop.task.domain.model.TaskCommand
 import kr.io.team.loop.task.domain.model.TaskQuery
 import kr.io.team.loop.task.domain.model.TaskStatus
 import kr.io.team.loop.task.domain.model.TaskTitle
 import kr.io.team.loop.task.domain.repository.TaskRepository
+import org.jetbrains.exposed.v1.core.Case
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.Sum
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.intLiteral
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.update
 import org.springframework.stereotype.Repository
@@ -80,6 +87,33 @@ class ExposedTaskRepository : TaskRepository {
             .where { TaskTable.taskId eq id.value }
             .singleOrNull()
             ?.toTask()
+
+    override fun countByGoalIds(goalIds: Set<GoalId>): Map<GoalId, GoalTaskStats> {
+        if (goalIds.isEmpty()) return emptyMap()
+        val goalIdValues = goalIds.map { it.value }
+        val completedCount =
+            Sum(
+                Case()
+                    .When(TaskTable.status eq TaskStatus.DONE.name, intLiteral(1))
+                    .Else(intLiteral(0)),
+                org.jetbrains.exposed.v1.core
+                    .IntegerColumnType(),
+            )
+        val totalCount = TaskTable.taskId.count()
+        return TaskTable
+            .select(TaskTable.goalId, totalCount, completedCount)
+            .where { TaskTable.goalId inList goalIdValues }
+            .groupBy(TaskTable.goalId)
+            .associate { row ->
+                val goalId = GoalId(row[TaskTable.goalId])
+                goalId to
+                    GoalTaskStats(
+                        goalId = goalId,
+                        totalCount = row[totalCount].toInt(),
+                        completedCount = row[completedCount] ?: 0,
+                    )
+            }
+    }
 
     private fun ResultRow.toTask(): Task =
         Task(

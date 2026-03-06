@@ -14,6 +14,7 @@ import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.common.domain.TaskId
 import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.EntityNotFoundException
+import kr.io.team.loop.task.domain.model.GoalTaskStats
 import kr.io.team.loop.task.domain.model.Task
 import kr.io.team.loop.task.domain.model.TaskCommand
 import kr.io.team.loop.task.domain.model.TaskQuery
@@ -125,6 +126,42 @@ class TaskServiceTest :
                     shouldThrow<AccessDeniedException> {
                         taskService.updateStatus(command, otherMemberId)
                     }
+                }
+            }
+        }
+
+        Given("목표별 할일 통계 조회 시") {
+            When("할일이 있는 목표들이면") {
+                val goalId1 = GoalId(1L)
+                val goalId2 = GoalId(2L)
+                val goalIds = setOf(goalId1, goalId2)
+                val statsMap =
+                    mapOf(
+                        goalId1 to GoalTaskStats(goalId = goalId1, totalCount = 5, completedCount = 3),
+                        goalId2 to GoalTaskStats(goalId = goalId2, totalCount = 2, completedCount = 2),
+                    )
+                every { taskRepository.countByGoalIds(goalIds) } returns statsMap
+
+                val result = taskService.getStatsByGoalIds(goalIds)
+
+                Then("목표별 통계를 반환한다") {
+                    result[goalId1]!!.totalCount shouldBe 5
+                    result[goalId1]!!.completedCount shouldBe 3
+                    result[goalId1]!!.achievementRate shouldBe 60.0
+                    result[goalId2]!!.totalCount shouldBe 2
+                    result[goalId2]!!.completedCount shouldBe 2
+                    result[goalId2]!!.achievementRate shouldBe 100.0
+                }
+            }
+
+            When("빈 goalIds이면") {
+                val goalIds = emptySet<GoalId>()
+                every { taskRepository.countByGoalIds(goalIds) } returns emptyMap()
+
+                val result = taskService.getStatsByGoalIds(goalIds)
+
+                Then("빈 맵을 반환한다") {
+                    result shouldBe emptyMap()
                 }
             }
         }

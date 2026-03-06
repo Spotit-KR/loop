@@ -24,6 +24,12 @@ type Goal {
     createdAt: String!
     "수정일시"
     updatedAt: String
+    "해당 목표의 전체 할일 수"
+    totalTaskCount: Int!
+    "해당 목표의 완료된 할일 수"
+    completedTaskCount: Int!
+    "해당 목표의 달성률 (0.0 ~ 100.0, 할일이 없으면 0.0)"
+    achievementRate: Float!
 }
 
 "목표 생성 입력"
