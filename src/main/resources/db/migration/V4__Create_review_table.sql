@@ -2,7 +2,7 @@ CREATE TABLE review (
     review_id   BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     review_type TEXT        NOT NULL,
     member_id   BIGINT      NOT NULL,
-    steps       JSON        NOT NULL,
+    steps       JSONB       NOT NULL,
     start_date  DATE        NOT NULL,
     end_date    DATE,
     period_key  TEXT        NOT NULL,
