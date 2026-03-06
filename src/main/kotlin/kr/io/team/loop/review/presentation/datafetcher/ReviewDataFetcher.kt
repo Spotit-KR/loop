@@ -10,6 +10,7 @@ import kotlinx.datetime.toLocalDateTime
 import kr.io.team.loop.codegen.types.CreateReviewInput
 import kr.io.team.loop.codegen.types.ReviewFilter
 import kr.io.team.loop.codegen.types.ReviewStepOutput
+import kr.io.team.loop.codegen.types.UpdateReviewInput
 import kr.io.team.loop.common.config.Authorize
 import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.review.application.service.ReviewService
@@ -81,6 +82,25 @@ class ReviewDataFetcher(
                 date = LocalDate.parse(input.date),
             )
         return reviewService.create(command).toGraphql()
+    }
+
+    @DgsMutation
+    fun updateReview(
+        @InputArgument input: UpdateReviewInput,
+        @Authorize memberId: Long,
+    ): ReviewGraphql {
+        val command =
+            ReviewCommand.Update(
+                reviewId = ReviewId(input.id.toLong()),
+                steps =
+                    input.steps.map { step ->
+                        ReviewStep(
+                            type = StepTypeDomain.valueOf(step.type.name),
+                            content = step.content,
+                        )
+                    },
+            )
+        return reviewService.update(command, MemberId(memberId)).toGraphql()
     }
 
     @DgsMutation

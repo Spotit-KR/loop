@@ -41,6 +41,20 @@ class ReviewService(
             throw DuplicateEntityException("Review already exists for this period")
         }
 
+    @Transactional
+    fun update(
+        command: ReviewCommand.Update,
+        memberId: MemberId,
+    ): Review {
+        val review =
+            reviewRepository.findById(command.reviewId)
+                ?: throw EntityNotFoundException("Review not found: ${command.reviewId.value}")
+        if (!review.isOwnedBy(memberId)) {
+            throw AccessDeniedException("Cannot update other member's review")
+        }
+        return reviewRepository.update(command)
+    }
+
     @Transactional(readOnly = true)
     fun findAll(query: ReviewQuery): List<Review> {
         val reviews = reviewRepository.findAll(query.copy(stepType = null))
