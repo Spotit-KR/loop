@@ -15,6 +15,7 @@ import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.review.application.service.ReviewService
 import kr.io.team.loop.review.domain.model.Review
 import kr.io.team.loop.review.domain.model.ReviewCommand
+import kr.io.team.loop.review.domain.model.ReviewId
 import kr.io.team.loop.review.domain.model.ReviewQuery
 import kr.io.team.loop.review.domain.model.ReviewStep
 import kotlin.time.Clock
@@ -80,6 +81,16 @@ class ReviewDataFetcher(
                 date = LocalDate.parse(input.date),
             )
         return reviewService.create(command).toGraphql()
+    }
+
+    @DgsMutation
+    fun deleteReview(
+        @InputArgument id: String,
+        @Authorize memberId: Long,
+    ): Boolean {
+        val command = ReviewCommand.Delete(reviewId = ReviewId(id.toLong()))
+        reviewService.delete(command, MemberId(memberId))
+        return true
     }
 
     private fun Review.toGraphql(): ReviewGraphql =

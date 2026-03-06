@@ -9,4 +9,8 @@ sealed interface ReviewCommand {
         val steps: List<ReviewStep>,
         val date: LocalDate,
     ) : ReviewCommand
+
+    data class Delete(
+        val reviewId: ReviewId,
+    ) : ReviewCommand
 }

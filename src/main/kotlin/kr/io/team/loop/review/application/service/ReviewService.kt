@@ -3,7 +3,9 @@ package kr.io.team.loop.review.application.service
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kr.io.team.loop.common.domain.MemberId
+import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.DuplicateEntityException
+import kr.io.team.loop.common.domain.exception.EntityNotFoundException
 import kr.io.team.loop.review.application.dto.ReviewStatsDto
 import kr.io.team.loop.review.domain.model.Review
 import kr.io.team.loop.review.domain.model.ReviewCommand
@@ -17,6 +19,20 @@ import org.springframework.transaction.annotation.Transactional
 class ReviewService(
     private val reviewRepository: ReviewRepository,
 ) {
+    @Transactional
+    fun delete(
+        command: ReviewCommand.Delete,
+        memberId: MemberId,
+    ) {
+        val review =
+            reviewRepository.findById(command.reviewId)
+                ?: throw EntityNotFoundException("Review not found: ${command.reviewId.value}")
+        if (!review.isOwnedBy(memberId)) {
+            throw AccessDeniedException("Review does not belong to member: ${memberId.value}")
+        }
+        reviewRepository.delete(command)
+    }
+
     @Transactional
     fun create(command: ReviewCommand.Create): Review =
         try {
