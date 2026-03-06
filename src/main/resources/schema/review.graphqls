@@ -1,0 +1,98 @@
+extend type Query {
+    "현재 사용자의 회고 목록을 조회한다. 필터 조건은 AND로 결합된다."
+    myReviews(
+        "회고 조회 필터"
+        filter: ReviewFilter!
+    ): [Review!]!
+
+    "현재 사용자의 회고 통계를 조회한다."
+    myReviewStats: ReviewStats!
+}
+
+extend type Mutation {
+    "새 KPT 회고를 생성한다. (인증 필수)"
+    createReview(
+        "생성할 회고 정보"
+        input: CreateReviewInput!
+    ): Review!
+}
+
+"""회고"""
+type Review {
+    "회고 ID"
+    id: ID!
+    "회고 유형"
+    reviewType: ReviewType!
+    "회고 단계 목록 (KPT)"
+    steps: [ReviewStepOutput!]!
+    "시작 날짜 (YYYY-MM-DD)"
+    startDate: String!
+    "종료 날짜 (YYYY-MM-DD)"
+    endDate: String
+    "생성일시"
+    createdAt: String!
+    "수정일시"
+    updatedAt: String
+}
+
+"""회고 단계"""
+type ReviewStepOutput {
+    "단계 유형"
+    type: StepType!
+    "단계 내용"
+    content: String!
+}
+
+"""회고 통계"""
+type ReviewStats {
+    "총 회고 수"
+    totalCount: Int!
+    "연속 회고일수"
+    consecutiveDays: Int!
+}
+
+"""회고 유형"""
+enum ReviewType {
+    "일일 회고"
+    DAILY
+}
+
+"""회고 단계 유형"""
+enum StepType {
+    "유지할 점"
+    KEEP
+    "개선할 점"
+    PROBLEM
+    "앞으로의 다짐"
+    TRY
+}
+
+"""회고 조회 필터. 모든 조건은 선택적이며 AND로 결합된다."""
+input ReviewFilter {
+    "회고 유형 필터"
+    reviewType: ReviewType
+    "포함된 단계 유형 필터 (앱 레벨 JSONB 필터)"
+    stepType: StepType
+    "특정 날짜 (YYYY-MM-DD)"
+    date: String
+    "시작 날짜 (YYYY-MM-DD, inclusive)"
+    startDate: String
+    "종료 날짜 (YYYY-MM-DD, inclusive)"
+    endDate: String
+}
+
+"""회고 생성 입력"""
+input CreateReviewInput {
+    "회고 단계 목록 (최소 1개)"
+    steps: [ReviewStepInput!]!
+    "회고 날짜 (YYYY-MM-DD, 필수)"
+    date: String!
+}
+
+"""회고 단계 입력"""
+input ReviewStepInput {
+    "단계 유형"
+    type: StepType!
+    "단계 내용 (1~1000자)"
+    content: String!
+}
