@@ -10,6 +10,8 @@ interface ReviewRepository {
 
     fun update(command: ReviewCommand.Update): Review
 
+    fun delete(command: ReviewCommand.Delete)
+
     fun findAll(query: ReviewQuery): List<Review>
 
     fun findById(id: kr.io.team.loop.review.domain.model.ReviewId): Review?

@@ -103,6 +103,16 @@ class ReviewDataFetcher(
         return reviewService.update(command, MemberId(memberId)).toGraphql()
     }
 
+    @DgsMutation
+    fun deleteReview(
+        @InputArgument id: String,
+        @Authorize memberId: Long,
+    ): Boolean {
+        val command = ReviewCommand.Delete(reviewId = ReviewId(id.toLong()))
+        reviewService.delete(command, MemberId(memberId))
+        return true
+    }
+
     private fun Review.toGraphql(): ReviewGraphql =
         ReviewGraphql(
             id = id.value.toString(),

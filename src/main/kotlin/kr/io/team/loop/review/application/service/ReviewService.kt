@@ -20,6 +20,20 @@ class ReviewService(
     private val reviewRepository: ReviewRepository,
 ) {
     @Transactional
+    fun delete(
+        command: ReviewCommand.Delete,
+        memberId: MemberId,
+    ) {
+        val review =
+            reviewRepository.findById(command.reviewId)
+                ?: throw EntityNotFoundException("Review not found: ${command.reviewId.value}")
+        if (!review.isOwnedBy(memberId)) {
+            throw AccessDeniedException("Review does not belong to member: ${memberId.value}")
+        }
+        reviewRepository.delete(command)
+    }
+
+    @Transactional
     fun create(command: ReviewCommand.Create): Review =
         try {
             reviewRepository.save(command)

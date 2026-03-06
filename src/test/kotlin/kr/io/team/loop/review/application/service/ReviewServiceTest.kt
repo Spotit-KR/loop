@@ -5,7 +5,9 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.datetime.LocalDate
 import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.common.domain.exception.AccessDeniedException
@@ -254,6 +256,43 @@ class ReviewServiceTest :
                 Then("연속 회고일수는 today부터 연속된 일수만 카운트한다") {
                     result.totalCount shouldBe 3L
                     result.consecutiveDays shouldBe 1
+                }
+            }
+        }
+
+        Given("회고 삭제 시") {
+            val reviewId = ReviewId(1L)
+            val command = ReviewCommand.Delete(reviewId = reviewId)
+
+            When("본인 회고이면") {
+                every { reviewRepository.findById(reviewId) } returns savedReview
+                justRun { reviewRepository.delete(command) }
+
+                reviewService.delete(command, memberId)
+
+                Then("삭제가 수행된다") {
+                    verify { reviewRepository.delete(command) }
+                }
+            }
+
+            When("회고가 존재하지 않으면") {
+                every { reviewRepository.findById(reviewId) } returns null
+
+                Then("EntityNotFoundException이 발생한다") {
+                    shouldThrow<EntityNotFoundException> {
+                        reviewService.delete(command, memberId)
+                    }
+                }
+            }
+
+            When("다른 사용자의 회고이면") {
+                val otherMemberId = MemberId(99L)
+                every { reviewRepository.findById(reviewId) } returns savedReview
+
+                Then("AccessDeniedException이 발생한다") {
+                    shouldThrow<AccessDeniedException> {
+                        reviewService.delete(command, otherMemberId)
+                    }
                 }
             }
         }
