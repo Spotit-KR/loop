@@ -15,6 +15,12 @@ extend type Mutation {
         "생성할 회고 정보"
         input: CreateReviewInput!
     ): Review!
+
+    "회고를 삭제한다. (본인 회고만)"
+    deleteReview(
+        "삭제할 회고 ID"
+        id: ID!
+    ): Boolean!
 }
 
 """회고"""

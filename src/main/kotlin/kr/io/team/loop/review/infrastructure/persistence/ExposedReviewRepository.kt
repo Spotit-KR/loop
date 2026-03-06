@@ -18,6 +18,7 @@ import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.lessEq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.springframework.stereotype.Repository
@@ -25,6 +26,10 @@ import java.time.OffsetDateTime
 
 @Repository
 class ExposedReviewRepository : ReviewRepository {
+    override fun delete(command: ReviewCommand.Delete) {
+        ReviewTable.deleteWhere { reviewId eq command.reviewId.value }
+    }
+
     override fun save(command: ReviewCommand.Create): Review {
         val now = OffsetDateTime.now()
         val periodKey = PeriodKey.daily(command.date)
