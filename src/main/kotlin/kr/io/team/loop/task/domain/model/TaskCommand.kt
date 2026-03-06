@@ -13,14 +13,10 @@ sealed interface TaskCommand {
         val taskDate: LocalDate,
     ) : TaskCommand
 
-    data class UpdateStatus(
+    data class Update(
         val taskId: TaskId,
-        val status: TaskStatus,
-    ) : TaskCommand
-
-    data class UpdateTitle(
-        val taskId: TaskId,
-        val title: TaskTitle,
+        val title: TaskTitle? = null,
+        val status: TaskStatus? = null,
     ) : TaskCommand
 
     data class Delete(

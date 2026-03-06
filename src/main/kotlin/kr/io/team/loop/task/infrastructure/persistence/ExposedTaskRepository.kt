@@ -48,19 +48,11 @@ class ExposedTaskRepository : TaskRepository {
         )
     }
 
-    override fun updateStatus(command: TaskCommand.UpdateStatus): Task {
+    override fun update(command: TaskCommand.Update): Task {
         val now = OffsetDateTime.now()
         TaskTable.update({ TaskTable.taskId eq command.taskId.value }) {
-            it[status] = command.status.name
-            it[updatedAt] = now
-        }
-        return findById(command.taskId)!!
-    }
-
-    override fun updateTitle(command: TaskCommand.UpdateTitle): Task {
-        val now = OffsetDateTime.now()
-        TaskTable.update({ TaskTable.taskId eq command.taskId.value }) {
-            it[title] = command.title.value
+            command.title?.let { newTitle -> it[title] = newTitle.value }
+            command.status?.let { newStatus -> it[status] = newStatus.name }
             it[updatedAt] = now
         }
         return findById(command.taskId)!!

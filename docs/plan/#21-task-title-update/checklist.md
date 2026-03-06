@@ -9,3 +9,8 @@
 
 ## 선택 항목
 - [x] 소유권 검증 (본인 할일만 수정 가능)
+
+## PR 리뷰 반영
+- [x] updateTaskStatus + updateTaskTitle → updateTask 통합
+- [x] UpdateTaskInput에 title?, status? optional 필드
+- [x] 기존 updateTaskStatus 관련 코드 제거

@@ -91,78 +91,70 @@ class TaskServiceTest :
             }
         }
 
-        Given("할일 상태 변경 시") {
-            When("본인 할일이면") {
+        Given("할일 수정 시") {
+            When("본인 할일의 상태를 변경하면") {
                 val updatedTask = savedTask.copy(status = TaskStatus.DONE, updatedAt = Instant.now())
-                val command = TaskCommand.UpdateStatus(taskId = TaskId(1L), status = TaskStatus.DONE)
+                val command = TaskCommand.Update(taskId = TaskId(1L), status = TaskStatus.DONE)
 
                 every { taskRepository.findById(TaskId(1L)) } returns savedTask
-                every { taskRepository.updateStatus(command) } returns updatedTask
+                every { taskRepository.update(command) } returns updatedTask
 
-                val result = taskService.updateStatus(command, memberId)
+                val result = taskService.update(command, memberId)
 
                 Then("변경된 할일을 반환한다") {
                     result.status shouldBe TaskStatus.DONE
                 }
             }
 
-            When("존재하지 않는 할일이면") {
-                val command = TaskCommand.UpdateStatus(taskId = TaskId(99L), status = TaskStatus.DONE)
-                every { taskRepository.findById(TaskId(99L)) } returns null
-
-                Then("EntityNotFoundException이 발생한다") {
-                    shouldThrow<EntityNotFoundException> {
-                        taskService.updateStatus(command, memberId)
-                    }
-                }
-            }
-
-            When("본인 할일이 아니면") {
-                val command = TaskCommand.UpdateStatus(taskId = TaskId(1L), status = TaskStatus.DONE)
-                every { taskRepository.findById(TaskId(1L)) } returns savedTask
-
-                Then("AccessDeniedException이 발생한다") {
-                    shouldThrow<AccessDeniedException> {
-                        taskService.updateStatus(command, otherMemberId)
-                    }
-                }
-            }
-        }
-
-        Given("할일 제목 수정 시") {
-            When("본인 할일이면") {
+            When("본인 할일의 제목을 수정하면") {
                 val newTitle = TaskTitle("수학 문제 풀기")
                 val updatedTask = savedTask.copy(title = newTitle, updatedAt = Instant.now())
-                val command = TaskCommand.UpdateTitle(taskId = TaskId(1L), title = newTitle)
+                val command = TaskCommand.Update(taskId = TaskId(1L), title = newTitle)
 
                 every { taskRepository.findById(TaskId(1L)) } returns savedTask
-                every { taskRepository.updateTitle(command) } returns updatedTask
+                every { taskRepository.update(command) } returns updatedTask
 
-                val result = taskService.updateTitle(command, memberId)
+                val result = taskService.update(command, memberId)
 
                 Then("수정된 할일을 반환한다") {
                     result.title.value shouldBe "수학 문제 풀기"
                 }
             }
 
+            When("제목과 상태를 동시에 수정하면") {
+                val newTitle = TaskTitle("수학 문제 풀기")
+                val updatedTask = savedTask.copy(title = newTitle, status = TaskStatus.DONE, updatedAt = Instant.now())
+                val command = TaskCommand.Update(taskId = TaskId(1L), title = newTitle, status = TaskStatus.DONE)
+
+                every { taskRepository.findById(TaskId(1L)) } returns savedTask
+                every { taskRepository.update(command) } returns updatedTask
+
+                val result = taskService.update(command, memberId)
+
+                Then("수정된 할일을 반환한다") {
+                    result.title.value shouldBe "수학 문제 풀기"
+                    result.status shouldBe TaskStatus.DONE
+                }
+            }
+
             When("존재하지 않는 할일이면") {
-                val command = TaskCommand.UpdateTitle(taskId = TaskId(99L), title = TaskTitle("새 제목"))
+                val command = TaskCommand.Update(taskId = TaskId(99L), status = TaskStatus.DONE)
                 every { taskRepository.findById(TaskId(99L)) } returns null
 
                 Then("EntityNotFoundException이 발생한다") {
                     shouldThrow<EntityNotFoundException> {
-                        taskService.updateTitle(command, memberId)
+                        taskService.update(command, memberId)
                     }
                 }
             }
 
             When("본인 할일이 아니면") {
-                val command = TaskCommand.UpdateTitle(taskId = TaskId(1L), title = TaskTitle("새 제목"))
+                val command = TaskCommand.Update(taskId = TaskId(1L), status = TaskStatus.DONE)
                 every { taskRepository.findById(TaskId(1L)) } returns savedTask
 
                 Then("AccessDeniedException이 발생한다") {
                     shouldThrow<AccessDeniedException> {
-                        taskService.updateTitle(command, otherMemberId)
+                        taskService.update(command, otherMemberId)
                     }
                 }
             }

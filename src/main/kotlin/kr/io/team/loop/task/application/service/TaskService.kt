@@ -21,8 +21,8 @@ class TaskService(
     fun findAll(query: TaskQuery): List<Task> = taskRepository.findAll(query)
 
     @Transactional
-    fun updateStatus(
-        command: TaskCommand.UpdateStatus,
+    fun update(
+        command: TaskCommand.Update,
         memberId: MemberId,
     ): Task {
         val task =
@@ -31,21 +31,7 @@ class TaskService(
         if (!task.isOwnedBy(memberId)) {
             throw AccessDeniedException("Task does not belong to member: ${memberId.value}")
         }
-        return taskRepository.updateStatus(command)
-    }
-
-    @Transactional
-    fun updateTitle(
-        command: TaskCommand.UpdateTitle,
-        memberId: MemberId,
-    ): Task {
-        val task =
-            taskRepository.findById(command.taskId)
-                ?: throw EntityNotFoundException("Task not found: ${command.taskId.value}")
-        if (!task.isOwnedBy(memberId)) {
-            throw AccessDeniedException("Task does not belong to member: ${memberId.value}")
-        }
-        return taskRepository.updateTitle(command)
+        return taskRepository.update(command)
     }
 
     @Transactional

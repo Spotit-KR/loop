@@ -8,9 +8,7 @@ import kr.io.team.loop.task.domain.model.TaskQuery
 interface TaskRepository {
     fun save(command: TaskCommand.Create): Task
 
-    fun updateStatus(command: TaskCommand.UpdateStatus): Task
-
-    fun updateTitle(command: TaskCommand.UpdateTitle): Task
+    fun update(command: TaskCommand.Update): Task
 
     fun delete(command: TaskCommand.Delete)
 
