@@ -8,6 +8,7 @@ import kr.io.team.loop.task.domain.model.GoalTaskStats
 import kr.io.team.loop.task.domain.model.Task
 import kr.io.team.loop.task.domain.model.TaskCommand
 import kr.io.team.loop.task.domain.model.TaskQuery
+import kr.io.team.loop.task.domain.model.TaskStatus
 import kr.io.team.loop.task.domain.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -37,7 +38,19 @@ class TaskService(
     }
 
     @Transactional(readOnly = true)
-    fun getStatsByGoalIds(goalIds: Set<GoalId>): Map<GoalId, GoalTaskStats> = taskRepository.countByGoalIds(goalIds)
+    fun getStatsByGoalIds(goalIds: Set<GoalId>): Map<GoalId, GoalTaskStats> {
+        val tasks = taskRepository.findAllByGoalIds(goalIds)
+        return tasks
+            .groupBy { it.goalId }
+            .map { (goalId, goalTasks) ->
+                goalId to
+                    GoalTaskStats(
+                        goalId = goalId,
+                        totalCount = goalTasks.size,
+                        completedCount = goalTasks.count { it.status == TaskStatus.DONE },
+                    )
+            }.toMap()
+    }
 
     @Transactional
     fun delete(
