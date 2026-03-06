@@ -10,6 +10,8 @@ interface TaskRepository {
 
     fun updateStatus(command: TaskCommand.UpdateStatus): Task
 
+    fun updateTitle(command: TaskCommand.UpdateTitle): Task
+
     fun delete(command: TaskCommand.Delete)
 
     fun findAll(query: TaskQuery): List<Task>

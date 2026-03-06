@@ -57,6 +57,15 @@ class ExposedTaskRepository : TaskRepository {
         return findById(command.taskId)!!
     }
 
+    override fun updateTitle(command: TaskCommand.UpdateTitle): Task {
+        val now = OffsetDateTime.now()
+        TaskTable.update({ TaskTable.taskId eq command.taskId.value }) {
+            it[title] = command.title.value
+            it[updatedAt] = now
+        }
+        return findById(command.taskId)!!
+    }
+
     override fun delete(command: TaskCommand.Delete) {
         TaskTable.deleteWhere { taskId eq command.taskId.value }
     }

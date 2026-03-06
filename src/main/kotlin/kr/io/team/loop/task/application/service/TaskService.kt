@@ -35,6 +35,20 @@ class TaskService(
     }
 
     @Transactional
+    fun updateTitle(
+        command: TaskCommand.UpdateTitle,
+        memberId: MemberId,
+    ): Task {
+        val task =
+            taskRepository.findById(command.taskId)
+                ?: throw EntityNotFoundException("Task not found: ${command.taskId.value}")
+        if (!task.isOwnedBy(memberId)) {
+            throw AccessDeniedException("Task does not belong to member: ${memberId.value}")
+        }
+        return taskRepository.updateTitle(command)
+    }
+
+    @Transactional
     fun delete(
         command: TaskCommand.Delete,
         memberId: MemberId,

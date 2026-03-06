@@ -18,6 +18,11 @@ sealed interface TaskCommand {
         val status: TaskStatus,
     ) : TaskCommand
 
+    data class UpdateTitle(
+        val taskId: TaskId,
+        val title: TaskTitle,
+    ) : TaskCommand
+
     data class Delete(
         val taskId: TaskId,
     ) : TaskCommand

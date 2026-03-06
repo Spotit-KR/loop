@@ -19,6 +19,12 @@ extend type Mutation {
         input: UpdateTaskStatusInput!
     ): Task!
 
+    "할일의 제목을 수정한다. (본인 할일만)"
+    updateTaskTitle(
+        "제목 수정 정보"
+        input: UpdateTaskTitleInput!
+    ): Task!
+
     "할일을 삭제한다. (본인 할일만)"
     deleteTask(
         "삭제할 할일 ID"
@@ -78,4 +84,12 @@ input UpdateTaskStatusInput {
     id: ID!
     "변경할 상태"
     status: TaskStatus!
+}
+
+"""할일 제목 수정 입력"""
+input UpdateTaskTitleInput {
+    "수정할 할일 ID"
+    id: ID!
+    "새 제목 (1~200자)"
+    title: String!
 }

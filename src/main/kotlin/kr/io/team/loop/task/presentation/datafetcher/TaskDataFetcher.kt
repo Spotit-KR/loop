@@ -8,6 +8,7 @@ import kotlinx.datetime.LocalDate
 import kr.io.team.loop.codegen.types.CreateTaskInput
 import kr.io.team.loop.codegen.types.TaskFilter
 import kr.io.team.loop.codegen.types.UpdateTaskStatusInput
+import kr.io.team.loop.codegen.types.UpdateTaskTitleInput
 import kr.io.team.loop.common.config.Authorize
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
@@ -66,6 +67,19 @@ class TaskDataFetcher(
                 status = TaskStatus.valueOf(input.status.name),
             )
         return taskService.updateStatus(command, MemberId(memberId)).toGraphql()
+    }
+
+    @DgsMutation
+    fun updateTaskTitle(
+        @InputArgument input: UpdateTaskTitleInput,
+        @Authorize memberId: Long,
+    ): TaskGraphql {
+        val command =
+            TaskCommand.UpdateTitle(
+                taskId = TaskId(input.id.toLong()),
+                title = TaskTitle(input.title),
+            )
+        return taskService.updateTitle(command, MemberId(memberId)).toGraphql()
     }
 
     @DgsMutation

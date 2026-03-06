@@ -129,6 +129,45 @@ class TaskServiceTest :
             }
         }
 
+        Given("할일 제목 수정 시") {
+            When("본인 할일이면") {
+                val newTitle = TaskTitle("수학 문제 풀기")
+                val updatedTask = savedTask.copy(title = newTitle, updatedAt = Instant.now())
+                val command = TaskCommand.UpdateTitle(taskId = TaskId(1L), title = newTitle)
+
+                every { taskRepository.findById(TaskId(1L)) } returns savedTask
+                every { taskRepository.updateTitle(command) } returns updatedTask
+
+                val result = taskService.updateTitle(command, memberId)
+
+                Then("수정된 할일을 반환한다") {
+                    result.title.value shouldBe "수학 문제 풀기"
+                }
+            }
+
+            When("존재하지 않는 할일이면") {
+                val command = TaskCommand.UpdateTitle(taskId = TaskId(99L), title = TaskTitle("새 제목"))
+                every { taskRepository.findById(TaskId(99L)) } returns null
+
+                Then("EntityNotFoundException이 발생한다") {
+                    shouldThrow<EntityNotFoundException> {
+                        taskService.updateTitle(command, memberId)
+                    }
+                }
+            }
+
+            When("본인 할일이 아니면") {
+                val command = TaskCommand.UpdateTitle(taskId = TaskId(1L), title = TaskTitle("새 제목"))
+                every { taskRepository.findById(TaskId(1L)) } returns savedTask
+
+                Then("AccessDeniedException이 발생한다") {
+                    shouldThrow<AccessDeniedException> {
+                        taskService.updateTitle(command, otherMemberId)
+                    }
+                }
+            }
+        }
+
         Given("할일 삭제 시") {
             When("본인 할일이면") {
                 val command = TaskCommand.Delete(taskId = TaskId(1L))
