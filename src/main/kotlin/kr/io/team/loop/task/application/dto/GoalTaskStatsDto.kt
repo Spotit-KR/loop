@@ -1,8 +1,8 @@
-package kr.io.team.loop.task.domain.model
+package kr.io.team.loop.task.application.dto
 
 import kr.io.team.loop.common.domain.GoalId
 
-data class GoalTaskStats(
+data class GoalTaskStatsDto(
     val goalId: GoalId,
     val totalCount: Int,
     val completedCount: Int,

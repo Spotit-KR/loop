@@ -4,7 +4,7 @@ import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.EntityNotFoundException
-import kr.io.team.loop.task.domain.model.GoalTaskStats
+import kr.io.team.loop.task.application.dto.GoalTaskStatsDto
 import kr.io.team.loop.task.domain.model.Task
 import kr.io.team.loop.task.domain.model.TaskCommand
 import kr.io.team.loop.task.domain.model.TaskQuery
@@ -38,13 +38,13 @@ class TaskService(
     }
 
     @Transactional(readOnly = true)
-    fun getStatsByGoalIds(goalIds: Set<GoalId>): Map<GoalId, GoalTaskStats> {
+    fun getStatsByGoalIds(goalIds: Set<GoalId>): Map<GoalId, GoalTaskStatsDto> {
         val tasks = taskRepository.findAllByGoalIds(goalIds)
         return tasks
             .groupBy { it.goalId }
             .map { (goalId, goalTasks) ->
                 goalId to
-                    GoalTaskStats(
+                    GoalTaskStatsDto(
                         goalId = goalId,
                         totalCount = goalTasks.size,
                         completedCount = goalTasks.count { it.status == TaskStatus.DONE },
