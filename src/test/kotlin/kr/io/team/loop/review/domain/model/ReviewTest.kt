@@ -44,6 +44,24 @@ class ReviewTest :
             }
         }
 
+        Given("Review 수정 시") {
+            When("새로운 steps로 수정하면") {
+                val newSteps =
+                    listOf(
+                        ReviewStep(type = StepType.KEEP, content = "수정된 좋은 점"),
+                        ReviewStep(type = StepType.TRY, content = "수정된 다짐"),
+                    )
+                val updated = review.withUpdatedSteps(newSteps)
+
+                Then("steps가 변경된 새 Review를 반환한다") {
+                    updated.steps shouldBe newSteps
+                    updated.id shouldBe review.id
+                    updated.memberId shouldBe review.memberId
+                    updated.startDate shouldBe review.startDate
+                }
+            }
+        }
+
         Given("Review에 특정 StepType 포함 여부 확인 시") {
             When("KEEP이 포함되어 있으면") {
                 Then("true를 반환한다") {

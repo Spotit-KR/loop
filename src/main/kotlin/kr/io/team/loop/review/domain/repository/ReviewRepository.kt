@@ -8,6 +8,8 @@ import kr.io.team.loop.review.domain.model.ReviewQuery
 interface ReviewRepository {
     fun save(command: ReviewCommand.Create): Review
 
+    fun update(command: ReviewCommand.Update): Review
+
     fun findAll(query: ReviewQuery): List<Review>
 
     fun findById(id: kr.io.team.loop.review.domain.model.ReviewId): Review?

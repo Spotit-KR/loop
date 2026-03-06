@@ -3,7 +3,9 @@ package kr.io.team.loop.review.application.service
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
 import kr.io.team.loop.common.domain.MemberId
+import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.DuplicateEntityException
+import kr.io.team.loop.common.domain.exception.EntityNotFoundException
 import kr.io.team.loop.review.application.dto.ReviewStatsDto
 import kr.io.team.loop.review.domain.model.Review
 import kr.io.team.loop.review.domain.model.ReviewCommand
@@ -24,6 +26,20 @@ class ReviewService(
         } catch (e: DataIntegrityViolationException) {
             throw DuplicateEntityException("Review already exists for this period")
         }
+
+    @Transactional
+    fun update(
+        command: ReviewCommand.Update,
+        memberId: MemberId,
+    ): Review {
+        val review =
+            reviewRepository.findById(command.reviewId)
+                ?: throw EntityNotFoundException("Review not found: ${command.reviewId.value}")
+        if (!review.isOwnedBy(memberId)) {
+            throw AccessDeniedException("Cannot update other member's review")
+        }
+        return reviewRepository.update(command)
+    }
 
     @Transactional(readOnly = true)
     fun findAll(query: ReviewQuery): List<Review> {

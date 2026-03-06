@@ -8,7 +8,9 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.datetime.LocalDate
 import kr.io.team.loop.common.domain.MemberId
+import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.DuplicateEntityException
+import kr.io.team.loop.common.domain.exception.EntityNotFoundException
 import kr.io.team.loop.review.domain.model.PeriodKey
 import kr.io.team.loop.review.domain.model.Review
 import kr.io.team.loop.review.domain.model.ReviewCommand
@@ -86,6 +88,53 @@ class ReviewServiceTest :
                 Then("DuplicateEntityException이 발생한다") {
                     shouldThrow<DuplicateEntityException> {
                         reviewService.create(command)
+                    }
+                }
+            }
+        }
+
+        Given("회고 수정 시") {
+            val updateCommand =
+                ReviewCommand.Update(
+                    reviewId = ReviewId(1L),
+                    steps =
+                        listOf(
+                            ReviewStep(type = StepType.KEEP, content = "수정된 좋은 점"),
+                            ReviewStep(type = StepType.TRY, content = "수정된 다짐"),
+                        ),
+                )
+
+            When("본인 회고를 수정하면") {
+                every { reviewRepository.findById(ReviewId(1L)) } returns savedReview
+                val updatedReview = savedReview.withUpdatedSteps(updateCommand.steps)
+                every { reviewRepository.update(updateCommand) } returns updatedReview
+
+                val result = reviewService.update(updateCommand, memberId)
+
+                Then("수정된 회고를 반환한다") {
+                    result.steps shouldHaveSize 2
+                    result.steps[0].content shouldBe "수정된 좋은 점"
+                    result.steps[1].content shouldBe "수정된 다짐"
+                }
+            }
+
+            When("존재하지 않는 회고를 수정하면") {
+                every { reviewRepository.findById(ReviewId(1L)) } returns null
+
+                Then("EntityNotFoundException이 발생한다") {
+                    shouldThrow<EntityNotFoundException> {
+                        reviewService.update(updateCommand, memberId)
+                    }
+                }
+            }
+
+            When("다른 사용자의 회고를 수정하면") {
+                every { reviewRepository.findById(ReviewId(1L)) } returns savedReview
+                val otherMemberId = MemberId(99L)
+
+                Then("AccessDeniedException이 발생한다") {
+                    shouldThrow<AccessDeniedException> {
+                        reviewService.update(updateCommand, otherMemberId)
                     }
                 }
             }

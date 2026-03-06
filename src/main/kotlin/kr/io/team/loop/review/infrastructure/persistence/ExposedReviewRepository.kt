@@ -20,6 +20,7 @@ import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import org.springframework.stereotype.Repository
 import java.time.OffsetDateTime
 
@@ -51,6 +52,18 @@ class ExposedReviewRepository : ReviewRepository {
             createdAt = now.toInstant(),
             updatedAt = null,
         )
+    }
+
+    override fun update(command: ReviewCommand.Update): Review {
+        val now = OffsetDateTime.now()
+        val stepsJson = command.steps.map { StepJson(type = it.type.name, content = it.content) }
+
+        ReviewTable.update({ ReviewTable.reviewId eq command.reviewId.value }) {
+            it[steps] = stepsJson
+            it[updatedAt] = now
+        }
+
+        return findById(command.reviewId)!!
     }
 
     override fun findAll(query: ReviewQuery): List<Review> {

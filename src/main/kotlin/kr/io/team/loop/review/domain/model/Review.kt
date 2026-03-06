@@ -18,4 +18,6 @@ data class Review(
     fun isOwnedBy(memberId: MemberId): Boolean = this.memberId == memberId
 
     fun containsStepType(stepType: StepType): Boolean = steps.any { it.type == stepType }
+
+    fun withUpdatedSteps(newSteps: List<ReviewStep>): Review = copy(steps = newSteps)
 }
