@@ -5,10 +5,7 @@ import kr.io.team.loop.auth.domain.model.Member
 import kr.io.team.loop.auth.domain.model.MemberCommand
 
 interface MemberRepository {
-    fun save(
-        command: MemberCommand.Register,
-        encodedPassword: String,
-    ): Member
+    fun save(command: MemberCommand.Register): Member
 
     fun findByLoginId(loginId: LoginId): Member?
 

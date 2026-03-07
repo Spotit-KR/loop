@@ -48,7 +48,9 @@ class AuthServiceTest :
             When("유효한 정보이면") {
                 every { memberRepository.existsByLoginId(registerCommand.loginId) } returns false
                 every { passwordEncoder.encode("password123") } returns "encoded_password"
-                every { memberRepository.save(registerCommand, "encoded_password") } returns savedMember
+                every {
+                    memberRepository.save(registerCommand.copy(encodedPassword = "encoded_password"))
+                } returns savedMember
                 every { jwtTokenProvider.generateToken(1L) } returns "jwt-token"
 
                 val result = authService.register(registerCommand)
@@ -76,7 +78,12 @@ class AuthServiceTest :
                 every { passwordEncoder.matches("password123", "encoded_password") } returns true
                 every { jwtTokenProvider.generateToken(1L) } returns "jwt-token"
 
-                val result = authService.login(LoginId("testuser"), "password123")
+                val loginCommand =
+                    MemberCommand.Login(
+                        loginId = LoginId("testuser"),
+                        rawPassword = "password123",
+                    )
+                val result = authService.login(loginCommand)
 
                 Then("accessToken을 반환한다") {
                     result.accessToken.shouldNotBeBlank()
@@ -88,8 +95,13 @@ class AuthServiceTest :
                 every { memberRepository.findByLoginId(LoginId("unknown")) } returns null
 
                 Then("예외가 발생한다") {
+                    val loginCommand =
+                        MemberCommand.Login(
+                            loginId = LoginId("unknown"),
+                            rawPassword = "password123",
+                        )
                     shouldThrow<EntityNotFoundException> {
-                        authService.login(LoginId("unknown"), "password123")
+                        authService.login(loginCommand)
                     }
                 }
             }
@@ -99,8 +111,13 @@ class AuthServiceTest :
                 every { passwordEncoder.matches("wrongpassword", "encoded_password") } returns false
 
                 Then("예외가 발생한다") {
+                    val loginCommand =
+                        MemberCommand.Login(
+                            loginId = LoginId("testuser"),
+                            rawPassword = "wrongpassword",
+                        )
                     shouldThrow<AuthenticationException> {
-                        authService.login(LoginId("testuser"), "wrongpassword")
+                        authService.login(loginCommand)
                     }
                 }
             }

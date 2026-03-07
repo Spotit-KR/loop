@@ -33,11 +33,12 @@ class AuthDataFetcher(
     fun login(
         @InputArgument input: LoginInput,
     ): AuthToken {
-        val result =
-            authService.login(
+        val command =
+            MemberCommand.Login(
                 loginId = LoginId(input.loginId),
                 rawPassword = input.password,
             )
+        val result = authService.login(command)
         return AuthToken(accessToken = result.accessToken)
     }
 }
