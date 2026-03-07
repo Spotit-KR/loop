@@ -1,4 +1,4 @@
-package kr.io.team.loop.common.domain
+package kr.io.team.loop.task.domain.model
 
 import kr.io.team.loop.common.domain.exception.InvalidInputException
 
