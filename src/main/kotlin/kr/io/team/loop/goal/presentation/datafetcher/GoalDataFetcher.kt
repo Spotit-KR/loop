@@ -70,6 +70,8 @@ class GoalDataFetcher(
             title = title.value,
             createdAt = createdAt.toString(),
             updatedAt = updatedAt?.toString(),
+            // Constructor-required placeholders — always overridden by
+            // @DgsData resolvers in GoalTaskStatsDataFetcher (task BC)
             totalTaskCount = 0,
             completedTaskCount = 0,
             achievementRate = 0.0,
