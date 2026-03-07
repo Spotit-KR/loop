@@ -11,10 +11,10 @@ import kr.io.team.loop.codegen.types.UpdateTaskInput
 import kr.io.team.loop.common.config.Authorize
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
-import kr.io.team.loop.common.domain.TaskId
 import kr.io.team.loop.task.application.service.TaskService
 import kr.io.team.loop.task.domain.model.Task
 import kr.io.team.loop.task.domain.model.TaskCommand
+import kr.io.team.loop.task.domain.model.TaskId
 import kr.io.team.loop.task.domain.model.TaskQuery
 import kr.io.team.loop.task.domain.model.TaskStatus
 import kr.io.team.loop.task.domain.model.TaskTitle

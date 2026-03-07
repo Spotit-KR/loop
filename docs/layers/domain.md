@@ -21,7 +21,7 @@ value class TaskTitle(val value: String) {
 }
 ```
 
-BC간 공유 VO(MemberId, TaskId 등)는 `common/domain/`에 위치합니다.
+BC간 공유 VO(MemberId, GoalId 등)는 `common/domain/`에 위치합니다.
 
 ### Command
 
