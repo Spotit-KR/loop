@@ -15,10 +15,8 @@ import java.time.OffsetDateTime
 
 @Repository
 class ExposedMemberRepository : MemberRepository {
-    override fun save(
-        command: MemberCommand.Register,
-        encodedPassword: String,
-    ): Member {
+    override fun save(command: MemberCommand.Register): Member {
+        val encodedPassword = checkNotNull(command.encodedPassword)
         val now = OffsetDateTime.now()
         val row =
             MemberTable.insert {

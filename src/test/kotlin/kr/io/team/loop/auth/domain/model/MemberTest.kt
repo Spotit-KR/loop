@@ -47,5 +47,47 @@ class MemberTest :
                     command.rawPassword shouldBe "password123"
                 }
             }
+
+            When("encodedPassword를 포함하면") {
+                val command =
+                    MemberCommand.Register(
+                        loginId = LoginId("newuser"),
+                        nickname = Nickname("새사용자"),
+                        rawPassword = "password123",
+                        encodedPassword = "encoded_password",
+                    )
+
+                Then("encodedPassword가 설정된다") {
+                    command.encodedPassword shouldBe "encoded_password"
+                }
+            }
+
+            When("encodedPassword를 생략하면") {
+                val command =
+                    MemberCommand.Register(
+                        loginId = LoginId("newuser"),
+                        nickname = Nickname("새사용자"),
+                        rawPassword = "password123",
+                    )
+
+                Then("encodedPassword는 null이다") {
+                    command.encodedPassword shouldBe null
+                }
+            }
+        }
+
+        Given("MemberCommand.Login 생성 시") {
+            When("유효한 값이면") {
+                val command =
+                    MemberCommand.Login(
+                        loginId = LoginId("testuser"),
+                        rawPassword = "password123",
+                    )
+
+                Then("정상 생성된다") {
+                    command.loginId.value shouldBe "testuser"
+                    command.rawPassword shouldBe "password123"
+                }
+            }
         }
     })

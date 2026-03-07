@@ -1,7 +1,6 @@
 package kr.io.team.loop.auth.application.service
 
 import kr.io.team.loop.auth.application.dto.AuthTokenDto
-import kr.io.team.loop.auth.domain.model.LoginId
 import kr.io.team.loop.auth.domain.model.MemberCommand
 import kr.io.team.loop.auth.domain.repository.MemberRepository
 import kr.io.team.loop.common.config.JwtTokenProvider
@@ -24,20 +23,17 @@ class AuthService(
             throw DuplicateEntityException("LoginId already exists: ${command.loginId.value}")
         }
         val encodedPassword = checkNotNull(passwordEncoder.encode(command.rawPassword))
-        val member = memberRepository.save(command, encodedPassword)
+        val member = memberRepository.save(command.copy(encodedPassword = encodedPassword))
         val token = jwtTokenProvider.generateToken(member.id.value)
         return AuthTokenDto(accessToken = token)
     }
 
     @Transactional(readOnly = true)
-    fun login(
-        loginId: LoginId,
-        rawPassword: String,
-    ): AuthTokenDto {
+    fun login(command: MemberCommand.Login): AuthTokenDto {
         val member =
-            memberRepository.findByLoginId(loginId)
-                ?: throw EntityNotFoundException("Member not found: ${loginId.value}")
-        if (!passwordEncoder.matches(rawPassword, member.password)) {
+            memberRepository.findByLoginId(command.loginId)
+                ?: throw EntityNotFoundException("Member not found: ${command.loginId.value}")
+        if (!passwordEncoder.matches(command.rawPassword, member.password)) {
             throw AuthenticationException("Password does not match")
         }
         val token = jwtTokenProvider.generateToken(member.id.value)
