@@ -6,10 +6,6 @@
       "env": {
         "GOOGLE_DRIVE_OAUTH_CREDENTIALS": "/Users/imsubin/.config/google-drive-mcp/gcp-oauth.keys.json"
       }
-    },
-    "web2md": {
-      "command": "npx",
-      "args": ["-y", "web2md-mcp@latest"]
     }
   }
 }
