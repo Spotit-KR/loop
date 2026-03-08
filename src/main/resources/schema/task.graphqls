@@ -30,7 +30,7 @@ extend type Mutation {
 type Task {
     "할일 ID"
     id: ID!
-    "할일 제목 (1~200자)"
+    "할일 제목 (1~200자, 공백만 불가)"
     title: String!
     "할일 상태"
     status: TaskStatus!
@@ -64,7 +64,7 @@ input TaskFilter {
 
 """할일 생성 입력"""
 input CreateTaskInput {
-    "할일 제목 (1~200자, 필수)"
+    "할일 제목 (1~200자, 공백만 불가)"
     title: String!
     "소속 목표 ID (필수)"
     goalId: ID!
@@ -76,7 +76,7 @@ input CreateTaskInput {
 input UpdateTaskInput {
     "수정할 할일 ID"
     id: ID!
-    "새 제목 (1~200자, 선택)"
+    "새 제목 (1~200자, 공백만 불가)"
     title: String
     "새 상태 (선택)"
     status: TaskStatus

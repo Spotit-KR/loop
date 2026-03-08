@@ -95,7 +95,7 @@ input ReviewFilter {
 
 """회고 생성 입력"""
 input CreateReviewInput {
-    "회고 단계 목록 (최소 1개)"
+    "회고 단계 목록"
     steps: [ReviewStepInput!]!
     "회고 날짜 (YYYY-MM-DD, 필수)"
     date: String!
@@ -105,7 +105,7 @@ input CreateReviewInput {
 input UpdateReviewInput {
     "수정할 회고 ID"
     id: ID!
-    "수정할 회고 단계 목록 (최소 1개)"
+    "수정할 회고 단계 목록"
     steps: [ReviewStepInput!]!
 }
 
@@ -113,6 +113,6 @@ input UpdateReviewInput {
 input ReviewStepInput {
     "단계 유형"
     type: StepType!
-    "단계 내용 (1~1000자)"
+    "단계 내용"
     content: String!
 }

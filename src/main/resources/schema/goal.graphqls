@@ -34,7 +34,7 @@ type Goal {
 
 "목표 생성 입력"
 input CreateGoalInput {
-    "목표 제목"
+    "목표 제목 (공백만 불가)"
     title: String!
 }
 
@@ -42,6 +42,6 @@ input CreateGoalInput {
 input UpdateGoalInput {
     "수정할 목표 ID"
     id: ID!
-    "새 목표 제목"
+    "새 목표 제목 (공백만 불가)"
     title: String!
 }

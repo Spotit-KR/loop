@@ -14,17 +14,17 @@ type AuthToken {
 
 "회원가입 입력"
 input RegisterInput {
-    "로그인 ID (1~50자)"
+    "로그인 ID (1~50자, 공백만 불가)"
     loginId: String!
     "비밀번호"
     password: String!
-    "닉네임 (1~30자)"
+    "닉네임 (1~30자, 공백만 불가)"
     nickname: String!
 }
 
 "로그인 입력"
 input LoginInput {
-    "로그인 ID"
+    "로그인 ID (1~50자, 공백만 불가)"
     loginId: String!
     "비밀번호"
     password: String!
