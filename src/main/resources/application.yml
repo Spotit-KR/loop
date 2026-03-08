@@ -12,6 +12,10 @@ spring:
         generate-ddl: false
 
 management:
+    endpoints:
+        web:
+            exposure:
+                include: health, prometheus
     endpoint:
         health:
             probes:
