@@ -52,7 +52,7 @@ project-root/
 
 ### SpectaQL 설정 (`spectaql/config.yml`)
 
-BC별 스키마가 추가되면 `schemaFile` 목록에 경로를 추가합니다. `learning.graphqls`는 학습용이므로 제외합니다.
+BC별 스키마가 추가되면 `schemaFile` 목록에 경로를 추가합니다. `learning.graphqls`는 학습용이므로 제외합니다 (위치: `src/test/resources/schema/learning.graphqls`).
 
 ### 로컬 실행
 

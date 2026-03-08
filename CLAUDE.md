@@ -27,9 +27,9 @@
 
 다음 경로의 코드는 학습/참고용이므로 **절대 수정하지 않습니다**:
 
-- `src/main/kotlin/kr/io/team/loop/learning/` — DGS GraphQL 학습 예제 코드
+- `src/main/kotlin/kr/io/team/loop/learning/` — DGS GraphQL 학습 예제 코드 (ComponentScan에서 제외되어 엔드포인트 비활성화)
 - `src/test/kotlin/kr/io/team/loop/learning/` — DGS GraphQL 학습 테스트 코드
-- `src/main/resources/schema/learning.graphqls` — 학습용 GraphQL 스키마
+- `src/test/resources/schema/learning.graphqls` — 학습용 GraphQL 스키마 (테스트 전용 classpath, 프로덕션 미포함)
 - `docs/learning/` — 학습 가이드 문서
 - `docs/dgs-graphql-execution.md` — GraphQL 실행 파이프라인 문서
 

@@ -125,4 +125,4 @@ type Task {
 
 ## 제외 대상
 
-`src/main/resources/schema/learning.graphqls`는 학습용 스키마이므로 이 규칙을 적용하지 않습니다 (수정 금지 코드).
+`src/test/resources/schema/learning.graphqls`는 학습용 스키마이므로 이 규칙을 적용하지 않습니다 (수정 금지 코드, 테스트 전용 classpath).

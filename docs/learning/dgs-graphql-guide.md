@@ -589,7 +589,7 @@ HTTP 응답
 
 | 파일 | 설명 |
 |---|---|
-| `src/main/resources/schema/learning.graphqls` | GraphQL 스키마 정의 (주석 포함) |
+| `src/test/resources/schema/learning.graphqls` | GraphQL 스키마 정의 (주석 포함, 테스트 전용 classpath) |
 | `src/main/kotlin/.../learning/LearningModels.kt` | 도메인 모델 (data class) |
 | `src/main/kotlin/.../learning/ShowDataFetcher.kt` | DataFetcher 구현 (Query, Mutation, 자식 필드) |
 | `src/main/kotlin/.../learning/ShowDataLoader.kt` | DataLoader 구현 (BatchLoader, MappedBatchLoader) |
@@ -600,8 +600,12 @@ HTTP 응답
 ### 실행 방법
 
 1. **테스트 실행**: `./gradlew test --tests "kr.io.team.loop.learning.*"`
-2. **서버 시작 후 GraphiQL**: `./gradlew bootRun` → http://localhost:8080/graphiql
-3. **Codegen 실행**: `./gradlew generateJava`
+2. **Codegen 실행**: `./gradlew generateJava`
+
+> **참고**: 학습용 코드는 프로덕션 엔드포인트에 노출되지 않도록 비활성화되어 있습니다.
+> - `learning.graphqls`는 DGS 스캔 경로(`src/main/resources/schema/`) 밖인 `docs/learning/`에 위치
+> - `learning` 패키지는 `ServerApplication.kt`의 `@ComponentScan` excludeFilter로 빈 등록에서 제외
+> - 테스트는 `@SpringBootTest`로 별도 컨텍스트를 로드하므로 정상 동작
 
 ### 다음 단계
 
