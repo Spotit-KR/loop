@@ -13,4 +13,4 @@ introspection:
 info:
     title: Loop GraphQL API
     description: Loop 프로젝트 GraphQL API 레퍼런스
-    x-url: https://api.loop.example.com/graphql
+    x-url: https://api.loop.team.io.kr/graphql
