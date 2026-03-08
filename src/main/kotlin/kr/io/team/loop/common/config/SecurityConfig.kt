@@ -26,6 +26,7 @@ class SecurityConfig {
                 authorize("/graphql", permitAll)
                 authorize("/h2-console/**", permitAll)
                 authorize("/actuator/health/**", permitAll)
+                authorize("/actuator/prometheus", permitAll)
                 authorize(anyRequest, authenticated)
             }
             headers {
