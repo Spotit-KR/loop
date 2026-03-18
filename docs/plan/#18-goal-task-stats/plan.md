@@ -19,4 +19,4 @@
 - [x] 4단계: Infrastructure — ExposedTaskRepository에 집계 쿼리 구현
 - [x] 5단계: Presentation — GoalTaskStatsDataLoader + GoalTaskStatsDataFetcher 구현
 - [x] 6단계: 전체 테스트 통과 확인 및 검증
-- [ ] 7단계: 리팩토링 — 집계 로직을 Infrastructure에서 Application으로 이동
+- [x] 7단계: 리팩토링 — 집계 로직을 Infrastructure에서 Application으로 이동
