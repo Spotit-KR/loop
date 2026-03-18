@@ -35,6 +35,13 @@ class ExposedMemberRepository : MemberRepository {
         )
     }
 
+    override fun findById(id: MemberId): Member? =
+        MemberTable
+            .selectAll()
+            .where { MemberTable.memberId eq id.value }
+            .singleOrNull()
+            ?.toMember()
+
     override fun findByLoginId(loginId: LoginId): Member? =
         MemberTable
             .selectAll()
