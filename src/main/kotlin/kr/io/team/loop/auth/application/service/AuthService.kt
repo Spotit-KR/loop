@@ -1,9 +1,11 @@
 package kr.io.team.loop.auth.application.service
 
 import kr.io.team.loop.auth.application.dto.AuthTokenDto
+import kr.io.team.loop.auth.domain.model.Member
 import kr.io.team.loop.auth.domain.model.MemberCommand
 import kr.io.team.loop.auth.domain.repository.MemberRepository
 import kr.io.team.loop.common.config.JwtTokenProvider
+import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.common.domain.exception.AuthenticationException
 import kr.io.team.loop.common.domain.exception.DuplicateEntityException
 import kr.io.team.loop.common.domain.exception.EntityNotFoundException
@@ -39,4 +41,9 @@ class AuthService(
         val token = jwtTokenProvider.generateToken(member.id.value)
         return AuthTokenDto(accessToken = token)
     }
+
+    @Transactional(readOnly = true)
+    fun getMe(memberId: MemberId): Member =
+        memberRepository.findById(memberId)
+            ?: throw EntityNotFoundException("Member not found: ${memberId.value}")
 }

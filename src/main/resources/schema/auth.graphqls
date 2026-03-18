@@ -1,3 +1,8 @@
+extend type Query {
+    "로그인된 회원 본인의 정보를 조회한다. 인증 필수."
+    me: Member!
+}
+
 extend type Mutation {
     "회원가입 후 액세스 토큰을 발급한다."
     register(input: RegisterInput!): AuthToken!
@@ -28,4 +33,18 @@ input LoginInput {
     loginId: String!
     "비밀번호"
     password: String!
+}
+
+"회원 정보"
+type Member {
+    "회원 고유 식별자"
+    id: ID!
+    "로그인 ID"
+    loginId: String!
+    "닉네임"
+    nickname: String!
+    "가입 일시 (ISO-8601)"
+    createdAt: String!
+    "최근 수정 일시 (ISO-8601, 수정 이력이 없으면 null)"
+    updatedAt: String
 }

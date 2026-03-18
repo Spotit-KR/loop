@@ -122,4 +122,28 @@ class AuthServiceTest :
                 }
             }
         }
+
+        Given("내 정보 조회 시") {
+            When("존재하는 회원이면") {
+                every { memberRepository.findById(MemberId(1L)) } returns savedMember
+
+                val result = authService.getMe(MemberId(1L))
+
+                Then("회원 정보를 반환한다") {
+                    result.id shouldBe MemberId(1L)
+                    result.loginId shouldBe LoginId("testuser")
+                    result.nickname shouldBe Nickname("홍길동")
+                }
+            }
+
+            When("존재하지 않는 회원이면") {
+                every { memberRepository.findById(MemberId(999L)) } returns null
+
+                Then("예외가 발생한다") {
+                    shouldThrow<EntityNotFoundException> {
+                        authService.getMe(MemberId(999L))
+                    }
+                }
+            }
+        }
     })
