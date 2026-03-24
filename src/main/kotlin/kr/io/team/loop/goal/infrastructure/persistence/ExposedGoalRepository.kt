@@ -7,9 +7,14 @@ import kr.io.team.loop.goal.domain.model.GoalCommand
 import kr.io.team.loop.goal.domain.model.GoalQuery
 import kr.io.team.loop.goal.domain.model.GoalTitle
 import kr.io.team.loop.goal.domain.repository.GoalRepository
+import org.jetbrains.exposed.v1.core.JoinType
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -50,10 +55,29 @@ class ExposedGoalRepository : GoalRepository {
     }
 
     override fun findAll(query: GoalQuery): List<Goal> {
-        var statement = GoalTable.selectAll()
-        query.memberId?.let { statement = statement.where { GoalTable.memberId eq it.value } }
-        return statement
-            .orderBy(GoalTable.createdAt, SortOrder.DESC)
+        val needsJoin = query.assignedDate != null
+        val base =
+            if (needsJoin) {
+                GoalTable.join(DailyGoalTable, JoinType.INNER, GoalTable.goalId, DailyGoalTable.goalId)
+            } else {
+                GoalTable
+            }
+        var condition: Op<Boolean> = Op.TRUE
+        query.memberId?.let { condition = condition and (GoalTable.memberId eq it.value) }
+        // 목표 선택 조건: id > ids > title 우선순위
+        when {
+            query.id != null -> condition = condition and (GoalTable.goalId eq query.id.value)
+            query.ids != null -> condition = condition and (GoalTable.goalId inList query.ids.map { it.value })
+            query.title != null -> condition = condition and (GoalTable.title like "%${query.title}%")
+        }
+        // AND 조건
+        query.assignedDate?.let { condition = condition and (DailyGoalTable.date eq it) }
+        val orderColumn = if (needsJoin) DailyGoalTable.createdAt else GoalTable.createdAt
+        val orderDirection = if (needsJoin) SortOrder.ASC else SortOrder.DESC
+        return base
+            .selectAll()
+            .where(condition)
+            .orderBy(orderColumn, orderDirection)
             .map { it.toGoal() }
     }
 
