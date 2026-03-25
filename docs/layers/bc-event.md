@@ -41,11 +41,11 @@ class GoalService(
 ) {
     @Transactional
     fun delete(command: GoalCommand.Delete) {
-        val goal = goalRepository.findById(command.goalId)
-            ?: throw NoSuchElementException("Goal not found: ${command.goalId.value}")
+        goalRepository.findById(command.goalId)
+            ?: throw EntityNotFoundException("Goal not found: ${command.goalId.value}")
 
         goalRepository.delete(command)
-        eventPublisher.publishEvent(GoalDeletedEvent(goal.id))
+        eventPublisher.publishEvent(GoalDeletedEvent(command.goalId))
     }
 }
 ```
