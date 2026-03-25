@@ -1,5 +1,6 @@
 package kr.io.team.loop.task.infrastructure.persistence
 
+import kotlinx.datetime.LocalDate
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
 import kr.io.team.loop.task.domain.model.Task
@@ -61,6 +62,22 @@ class ExposedTaskRepository : TaskRepository {
 
     override fun delete(command: TaskCommand.Delete) {
         TaskTable.deleteWhere { taskId eq command.taskId.value }
+    }
+
+    override fun deleteByGoalId(goalId: GoalId) {
+        TaskTable.deleteWhere { TaskTable.goalId eq goalId.value }
+    }
+
+    override fun deleteByGoalIdAndMemberIdAndTaskDate(
+        goalId: GoalId,
+        memberId: MemberId,
+        taskDate: LocalDate,
+    ) {
+        TaskTable.deleteWhere {
+            (TaskTable.goalId eq goalId.value) and
+                (TaskTable.memberId eq memberId.value) and
+                (TaskTable.taskDate eq taskDate)
+        }
     }
 
     override fun findAll(query: TaskQuery): List<Task> {

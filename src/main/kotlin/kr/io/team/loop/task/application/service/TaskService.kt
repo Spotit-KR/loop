@@ -2,6 +2,8 @@ package kr.io.team.loop.task.application.service
 
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
+import kr.io.team.loop.common.domain.event.DailyGoalRemovedEvent
+import kr.io.team.loop.common.domain.event.GoalDeletedEvent
 import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.EntityNotFoundException
 import kr.io.team.loop.task.application.dto.GoalTaskStatsDto
@@ -12,6 +14,8 @@ import kr.io.team.loop.task.domain.model.TaskStatus
 import kr.io.team.loop.task.domain.repository.TaskRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.event.TransactionPhase
+import org.springframework.transaction.event.TransactionalEventListener
 
 @Service
 class TaskService(
@@ -64,5 +68,15 @@ class TaskService(
             throw AccessDeniedException("Task does not belong to member: ${memberId.value}")
         }
         taskRepository.delete(command)
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    fun handleGoalDeleted(event: GoalDeletedEvent) {
+        taskRepository.deleteByGoalId(event.goalId)
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    fun handleDailyGoalRemoved(event: DailyGoalRemovedEvent) {
+        taskRepository.deleteByGoalIdAndMemberIdAndTaskDate(event.goalId, event.memberId, event.date)
     }
 }

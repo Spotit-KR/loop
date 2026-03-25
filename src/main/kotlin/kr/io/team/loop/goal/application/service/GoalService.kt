@@ -2,6 +2,8 @@ package kr.io.team.loop.goal.application.service
 
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
+import kr.io.team.loop.common.domain.event.DailyGoalRemovedEvent
+import kr.io.team.loop.common.domain.event.GoalDeletedEvent
 import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.DuplicateEntityException
 import kr.io.team.loop.common.domain.exception.EntityNotFoundException
@@ -11,6 +13,7 @@ import kr.io.team.loop.goal.domain.model.GoalCommand
 import kr.io.team.loop.goal.domain.model.GoalQuery
 import kr.io.team.loop.goal.domain.repository.DailyGoalRepository
 import kr.io.team.loop.goal.domain.repository.GoalRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional
 class GoalService(
     private val goalRepository: GoalRepository,
     private val dailyGoalRepository: DailyGoalRepository,
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
     @Transactional
     fun create(command: GoalCommand.Create): Goal = goalRepository.save(command)
@@ -55,7 +59,9 @@ class GoalService(
         if (!goal.isOwnedBy(memberId)) {
             throw AccessDeniedException("Goal does not belong to member: ${memberId.value}")
         }
+        dailyGoalRepository.deleteByGoalId(command.goalId)
         goalRepository.delete(command)
+        eventPublisher.publishEvent(GoalDeletedEvent(command.goalId))
     }
 
     @Transactional
@@ -83,5 +89,6 @@ class GoalService(
             )
         }
         dailyGoalRepository.delete(command)
+        eventPublisher.publishEvent(DailyGoalRemovedEvent(command.goalId, command.memberId, command.date))
     }
 }

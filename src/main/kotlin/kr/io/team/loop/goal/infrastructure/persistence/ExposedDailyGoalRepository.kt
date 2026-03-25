@@ -43,6 +43,10 @@ class ExposedDailyGoalRepository : DailyGoalRepository {
         }
     }
 
+    override fun deleteByGoalId(goalId: GoalId) {
+        DailyGoalTable.deleteWhere { DailyGoalTable.goalId eq goalId.value }
+    }
+
     override fun existsByGoalIdAndMemberIdAndDate(
         goalId: GoalId,
         memberId: MemberId,
