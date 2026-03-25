@@ -11,6 +11,8 @@ import io.mockk.verify
 import kotlinx.datetime.LocalDate
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
+import kr.io.team.loop.common.domain.event.DailyGoalRemovedEvent
+import kr.io.team.loop.common.domain.event.GoalDeletedEvent
 import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.EntityNotFoundException
 import kr.io.team.loop.task.domain.model.Task
@@ -199,6 +201,33 @@ class TaskServiceTest :
 
                 Then("빈 맵을 반환한다") {
                     result shouldBe emptyMap()
+                }
+            }
+        }
+
+        Given("GoalDeletedEvent 수신 시") {
+            When("해당 goalId의 Task가 있으면") {
+                val event = GoalDeletedEvent(goalId = GoalId(1L))
+                justRun { taskRepository.deleteByGoalId(GoalId(1L)) }
+
+                taskService.handleGoalDeleted(event)
+
+                Then("해당 goalId의 모든 Task가 삭제된다") {
+                    verify { taskRepository.deleteByGoalId(GoalId(1L)) }
+                }
+            }
+        }
+
+        Given("DailyGoalRemovedEvent 수신 시") {
+            When("해당 goalId와 date의 Task가 있으면") {
+                val date = LocalDate(2025, 2, 20)
+                val event = DailyGoalRemovedEvent(goalId = GoalId(1L), date = date)
+                justRun { taskRepository.deleteByGoalIdAndTaskDate(GoalId(1L), date) }
+
+                taskService.handleDailyGoalRemoved(event)
+
+                Then("해당 goalId와 date의 Task가 삭제된다") {
+                    verify { taskRepository.deleteByGoalIdAndTaskDate(GoalId(1L), date) }
                 }
             }
         }

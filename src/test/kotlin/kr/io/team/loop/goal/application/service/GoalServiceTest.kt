@@ -7,10 +7,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import kotlinx.datetime.LocalDate
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.common.domain.MemberId
+import kr.io.team.loop.common.domain.event.DailyGoalRemovedEvent
+import kr.io.team.loop.common.domain.event.GoalDeletedEvent
 import kr.io.team.loop.common.domain.exception.AccessDeniedException
 import kr.io.team.loop.common.domain.exception.DuplicateEntityException
 import kr.io.team.loop.common.domain.exception.EntityNotFoundException
@@ -23,6 +26,7 @@ import kr.io.team.loop.goal.domain.model.GoalQuery
 import kr.io.team.loop.goal.domain.model.GoalTitle
 import kr.io.team.loop.goal.domain.repository.DailyGoalRepository
 import kr.io.team.loop.goal.domain.repository.GoalRepository
+import org.springframework.context.ApplicationEventPublisher
 import java.time.Instant
 
 class GoalServiceTest :
@@ -30,7 +34,8 @@ class GoalServiceTest :
 
         val goalRepository = mockk<GoalRepository>()
         val dailyGoalRepository = mockk<DailyGoalRepository>()
-        val goalService = GoalService(goalRepository, dailyGoalRepository)
+        val eventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
+        val goalService = GoalService(goalRepository, dailyGoalRepository, eventPublisher)
 
         val memberId = MemberId(1L)
         val otherMemberId = MemberId(2L)
@@ -133,6 +138,12 @@ class GoalServiceTest :
                 Then("삭제가 수행된다") {
                     verify { goalRepository.delete(command) }
                 }
+
+                Then("GoalDeletedEvent가 발행된다") {
+                    val eventSlot = slot<GoalDeletedEvent>()
+                    verify { eventPublisher.publishEvent(capture(eventSlot)) }
+                    eventSlot.captured.goalId shouldBe GoalId(1L)
+                }
             }
 
             When("존재하지 않는 목표이면") {
@@ -228,6 +239,13 @@ class GoalServiceTest :
 
                 Then("삭제가 수행된다") {
                     verify { dailyGoalRepository.delete(command) }
+                }
+
+                Then("DailyGoalRemovedEvent가 발행된다") {
+                    val eventSlot = slot<DailyGoalRemovedEvent>()
+                    verify { eventPublisher.publishEvent(capture(eventSlot)) }
+                    eventSlot.captured.goalId shouldBe GoalId(1L)
+                    eventSlot.captured.date shouldBe date
                 }
             }
 

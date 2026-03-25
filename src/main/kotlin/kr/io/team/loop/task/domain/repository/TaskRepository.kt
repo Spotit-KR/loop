@@ -1,5 +1,6 @@
 package kr.io.team.loop.task.domain.repository
 
+import kotlinx.datetime.LocalDate
 import kr.io.team.loop.common.domain.GoalId
 import kr.io.team.loop.task.domain.model.Task
 import kr.io.team.loop.task.domain.model.TaskCommand
@@ -12,6 +13,13 @@ interface TaskRepository {
     fun update(command: TaskCommand.Update): Task
 
     fun delete(command: TaskCommand.Delete)
+
+    fun deleteByGoalId(goalId: GoalId)
+
+    fun deleteByGoalIdAndTaskDate(
+        goalId: GoalId,
+        taskDate: LocalDate,
+    )
 
     fun findAll(query: TaskQuery): List<Task>
 
