@@ -59,6 +59,7 @@ class GoalService(
         if (!goal.isOwnedBy(memberId)) {
             throw AccessDeniedException("Goal does not belong to member: ${memberId.value}")
         }
+        dailyGoalRepository.deleteByGoalId(command.goalId)
         goalRepository.delete(command)
         eventPublisher.publishEvent(GoalDeletedEvent(command.goalId))
     }
@@ -88,6 +89,6 @@ class GoalService(
             )
         }
         dailyGoalRepository.delete(command)
-        eventPublisher.publishEvent(DailyGoalRemovedEvent(command.goalId, command.date))
+        eventPublisher.publishEvent(DailyGoalRemovedEvent(command.goalId, command.memberId, command.date))
     }
 }

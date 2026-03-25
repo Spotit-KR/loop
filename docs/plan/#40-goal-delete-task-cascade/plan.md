@@ -11,3 +11,5 @@
 - [x] 5단계: ExposedTaskRepository에 deleteByGoalId, deleteByGoalIdAndTaskDate 구현
 - [x] 6단계: 전체 테스트 통과 확인 및 검증 체크리스트 완료
 - [x] 7단계: 코드 리뷰 피드백 반영 (FQN import 정리)
+- [x] 8단계: DailyGoalRemovedEvent에 memberId 추가 — TDD
+- [x] 9단계: Goal 삭제 시 DailyGoal 정리 추가 — TDD

@@ -219,15 +219,15 @@ class TaskServiceTest :
         }
 
         Given("DailyGoalRemovedEvent 수신 시") {
-            When("해당 goalId와 date의 Task가 있으면") {
+            When("해당 goalId, memberId, date의 Task가 있으면") {
                 val date = LocalDate(2025, 2, 20)
-                val event = DailyGoalRemovedEvent(goalId = GoalId(1L), date = date)
-                justRun { taskRepository.deleteByGoalIdAndTaskDate(GoalId(1L), date) }
+                val event = DailyGoalRemovedEvent(goalId = GoalId(1L), memberId = memberId, date = date)
+                justRun { taskRepository.deleteByGoalIdAndMemberIdAndTaskDate(GoalId(1L), memberId, date) }
 
                 taskService.handleDailyGoalRemoved(event)
 
-                Then("해당 goalId와 date의 Task가 삭제된다") {
-                    verify { taskRepository.deleteByGoalIdAndTaskDate(GoalId(1L), date) }
+                Then("해당 goalId, memberId, date의 Task만 삭제된다") {
+                    verify { taskRepository.deleteByGoalIdAndMemberIdAndTaskDate(GoalId(1L), memberId, date) }
                 }
             }
         }

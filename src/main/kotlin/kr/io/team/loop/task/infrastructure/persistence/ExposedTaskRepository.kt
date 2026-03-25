@@ -68,11 +68,16 @@ class ExposedTaskRepository : TaskRepository {
         TaskTable.deleteWhere { TaskTable.goalId eq goalId.value }
     }
 
-    override fun deleteByGoalIdAndTaskDate(
+    override fun deleteByGoalIdAndMemberIdAndTaskDate(
         goalId: GoalId,
+        memberId: MemberId,
         taskDate: LocalDate,
     ) {
-        TaskTable.deleteWhere { (TaskTable.goalId eq goalId.value) and (TaskTable.taskDate eq taskDate) }
+        TaskTable.deleteWhere {
+            (TaskTable.goalId eq goalId.value) and
+                (TaskTable.memberId eq memberId.value) and
+                (TaskTable.taskDate eq taskDate)
+        }
     }
 
     override fun findAll(query: TaskQuery): List<Task> {

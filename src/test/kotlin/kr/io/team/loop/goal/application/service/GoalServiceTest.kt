@@ -131,9 +131,14 @@ class GoalServiceTest :
             When("본인 목표이면") {
                 val command = GoalCommand.Delete(goalId = GoalId(1L))
                 every { goalRepository.findById(GoalId(1L)) } returns savedGoal
+                justRun { dailyGoalRepository.deleteByGoalId(GoalId(1L)) }
                 justRun { goalRepository.delete(command) }
 
                 goalService.delete(command, memberId)
+
+                Then("연관된 DailyGoal이 먼저 삭제된다") {
+                    verify { dailyGoalRepository.deleteByGoalId(GoalId(1L)) }
+                }
 
                 Then("삭제가 수행된다") {
                     verify { goalRepository.delete(command) }
@@ -245,6 +250,7 @@ class GoalServiceTest :
                     val eventSlot = slot<DailyGoalRemovedEvent>()
                     verify { eventPublisher.publishEvent(capture(eventSlot)) }
                     eventSlot.captured.goalId shouldBe GoalId(1L)
+                    eventSlot.captured.memberId shouldBe memberId
                     eventSlot.captured.date shouldBe date
                 }
             }

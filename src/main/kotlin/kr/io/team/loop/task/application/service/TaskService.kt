@@ -77,6 +77,6 @@ class TaskService(
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     fun handleDailyGoalRemoved(event: DailyGoalRemovedEvent) {
-        taskRepository.deleteByGoalIdAndTaskDate(event.goalId, event.date)
+        taskRepository.deleteByGoalIdAndMemberIdAndTaskDate(event.goalId, event.memberId, event.date)
     }
 }

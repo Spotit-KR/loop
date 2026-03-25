@@ -11,6 +11,8 @@ interface DailyGoalRepository {
 
     fun delete(command: DailyGoalCommand.Remove)
 
+    fun deleteByGoalId(goalId: GoalId)
+
     fun existsByGoalIdAndMemberIdAndDate(
         goalId: GoalId,
         memberId: MemberId,
