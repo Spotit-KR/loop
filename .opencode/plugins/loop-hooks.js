@@ -28,8 +28,8 @@ function extractPathsFromPatchText(patchText) {
   return paths
 }
 
-function adaptArgs(input, output) {
-  const args = { ...output.args }
+function adaptArgs(argsSource = {}) {
+  const args = { ...argsSource }
   if (args.filePath && !args.file_path) args.file_path = args.filePath
   return args
 }
@@ -53,7 +53,7 @@ export const LoopHooks = async ({ directory }) => {
   return {
     "tool.execute.before": async (input, output) => {
       const tool = mapTool(input.tool)
-      const args = adaptArgs(input, output)
+      const args = adaptArgs(output.args)
       const ctx = { tool, args, cwd: directory }
 
       if (tool === "Bash") {
@@ -78,7 +78,7 @@ export const LoopHooks = async ({ directory }) => {
     "tool.execute.after": async (input, output) => {
       const tool = mapTool(input.tool)
       if (tool !== "TaskCreate" && tool !== "TaskUpdate") return
-      const args = adaptArgs(input, output)
+      const args = adaptArgs(input.args)
       const ctx = { tool, args, cwd: directory }
       await runHooks(["plan-update-reminder"], ctx)
     },
@@ -87,6 +87,7 @@ export const LoopHooks = async ({ directory }) => {
       if (event.type !== "todo.updated") return
       const todo = event.properties ?? {}
       const status = todo.status
+      if (status !== "pending" && status !== "completed") return
       const ctx = {
         tool: status === "completed" ? "TaskUpdate" : "TaskCreate",
         args: {

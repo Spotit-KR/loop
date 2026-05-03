@@ -12,8 +12,10 @@ function makeDir() {
 function makeActivePlan(dir, name = "active") {
   const planDir = join(dir, "docs", "plan", name)
   mkdirSync(planDir, { recursive: true })
-  writeFileSync(join(planDir, "plan.md"), "- [ ] step")
+  const planMdPath = join(planDir, "plan.md")
+  writeFileSync(planMdPath, "- [ ] step")
   writeFileSync(join(planDir, "checklist.md"), "# c")
+  return planMdPath
 }
 
 describe("LoopHooks adapter", () => {
@@ -92,9 +94,101 @@ describe("LoopHooks adapter", () => {
     const plugin = await LoopHooks({ directory: dir })
     await expect(
       plugin["tool.execute.after"](
-        { tool: "task_create" },
-        { args: { subject: "신규 기능" } },
+        { tool: "task_create", args: { subject: "신규 기능" } },
+        { title: "", output: "", metadata: {} },
       ),
     ).rejects.toThrow(/plan/)
+  })
+
+  it("plan-update-reminder reads TaskUpdate status from after-hook input args", async () => {
+    const dir = makeDir()
+    const planMdPath = makeActivePlan(dir)
+    const plugin = await LoopHooks({ directory: dir })
+    await expect(
+      plugin["tool.execute.after"](
+        { tool: "task_update", args: { status: "completed" } },
+        { title: "", output: "", metadata: {} },
+      ),
+    ).rejects.toThrow(planMdPath)
+  })
+
+  it("todo.updated pending event reminds when no active plan exists", async () => {
+    const dir = makeDir()
+    const plugin = await LoopHooks({ directory: dir })
+    await expect(
+      plugin.event({
+        event: {
+          type: "todo.updated",
+          properties: { status: "pending", content: "신규 기능" },
+        },
+      }),
+    ).rejects.toThrow(/TaskCreate/)
+  })
+
+  it("todo.updated pending event is silent when active plan exists", async () => {
+    const dir = makeDir()
+    makeActivePlan(dir)
+    const plugin = await LoopHooks({ directory: dir })
+    await expect(
+      plugin.event({
+        event: {
+          type: "todo.updated",
+          properties: { status: "pending", content: "추가 작업" },
+        },
+      }),
+    ).resolves.toBeUndefined()
+  })
+
+  it("todo.updated completed event reminds with active plan path", async () => {
+    const dir = makeDir()
+    const planMdPath = makeActivePlan(dir)
+    const plugin = await LoopHooks({ directory: dir })
+    await expect(
+      plugin.event({
+        event: {
+          type: "todo.updated",
+          properties: { status: "completed", content: "1단계" },
+        },
+      }),
+    ).rejects.toThrow(planMdPath)
+  })
+
+  it("todo.updated in_progress event does not masquerade as TaskCreate", async () => {
+    const dir = makeDir()
+    const plugin = await LoopHooks({ directory: dir })
+    await expect(
+      plugin.event({
+        event: {
+          type: "todo.updated",
+          properties: { status: "in_progress", content: "신규 기능" },
+        },
+      }),
+    ).resolves.toBeUndefined()
+  })
+
+  it("todo.updated pending event skips exempt task", async () => {
+    const dir = makeDir()
+    const plugin = await LoopHooks({ directory: dir })
+    await expect(
+      plugin.event({
+        event: {
+          type: "todo.updated",
+          properties: { status: "pending", content: "CLAUDE.md 문서 수정" },
+        },
+      }),
+    ).resolves.toBeUndefined()
+  })
+
+  it("ignores non-todo events", async () => {
+    const dir = makeDir()
+    const plugin = await LoopHooks({ directory: dir })
+    await expect(
+      plugin.event({
+        event: {
+          type: "session.updated",
+          properties: { status: "pending", content: "신규 기능" },
+        },
+      }),
+    ).resolves.toBeUndefined()
   })
 })
