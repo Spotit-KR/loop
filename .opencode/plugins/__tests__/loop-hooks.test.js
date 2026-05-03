@@ -18,6 +18,16 @@ function makeActivePlan(dir, name = "active") {
   return planMdPath
 }
 
+function todoUpdatedEvent(todo, sessionID = "session-1") {
+  return {
+    type: "todo.updated",
+    properties: {
+      sessionID,
+      todos: [todo],
+    },
+  }
+}
+
 describe("LoopHooks adapter", () => {
   it("blocks rm -rf / via block-dangerous", async () => {
     const dir = makeDir()
@@ -117,10 +127,7 @@ describe("LoopHooks adapter", () => {
     const plugin = await LoopHooks({ directory: dir })
     await expect(
       plugin.event({
-        event: {
-          type: "todo.updated",
-          properties: { status: "pending", content: "신규 기능" },
-        },
+        event: todoUpdatedEvent({ content: "신규 기능", status: "pending", priority: "medium" }),
       }),
     ).rejects.toThrow(/TaskCreate/)
   })
@@ -131,10 +138,7 @@ describe("LoopHooks adapter", () => {
     const plugin = await LoopHooks({ directory: dir })
     await expect(
       plugin.event({
-        event: {
-          type: "todo.updated",
-          properties: { status: "pending", content: "추가 작업" },
-        },
+        event: todoUpdatedEvent({ content: "추가 작업", status: "pending", priority: "medium" }),
       }),
     ).resolves.toBeUndefined()
   })
@@ -145,10 +149,7 @@ describe("LoopHooks adapter", () => {
     const plugin = await LoopHooks({ directory: dir })
     await expect(
       plugin.event({
-        event: {
-          type: "todo.updated",
-          properties: { status: "completed", content: "1단계" },
-        },
+        event: todoUpdatedEvent({ content: "1단계", status: "completed", priority: "medium" }),
       }),
     ).rejects.toThrow(planMdPath)
   })
@@ -158,10 +159,7 @@ describe("LoopHooks adapter", () => {
     const plugin = await LoopHooks({ directory: dir })
     await expect(
       plugin.event({
-        event: {
-          type: "todo.updated",
-          properties: { status: "in_progress", content: "신규 기능" },
-        },
+        event: todoUpdatedEvent({ content: "신규 기능", status: "in_progress", priority: "medium" }),
       }),
     ).resolves.toBeUndefined()
   })
@@ -171,10 +169,7 @@ describe("LoopHooks adapter", () => {
     const plugin = await LoopHooks({ directory: dir })
     await expect(
       plugin.event({
-        event: {
-          type: "todo.updated",
-          properties: { status: "pending", content: "CLAUDE.md 문서 수정" },
-        },
+        event: todoUpdatedEvent({ content: "CLAUDE.md 문서 수정", status: "pending", priority: "medium" }),
       }),
     ).resolves.toBeUndefined()
   })

@@ -34,6 +34,10 @@ function adaptArgs(argsSource = {}) {
   return args
 }
 
+function todoKey(todo, index) {
+  return `${index}:${todo.content ?? ""}`
+}
+
 async function loadCore(name) {
   return await import(resolve(CORE_DIR, `${name}.ts`))
 }
@@ -50,6 +54,8 @@ async function runHooks(coreNames, ctx) {
 }
 
 export const LoopHooks = async ({ directory }) => {
+  const todoStatusBySession = new Map()
+
   return {
     "tool.execute.before": async (input, output) => {
       const tool = mapTool(input.tool)
@@ -85,19 +91,42 @@ export const LoopHooks = async ({ directory }) => {
 
     event: async ({ event }) => {
       if (event.type !== "todo.updated") return
-      const todo = event.properties ?? {}
-      const status = todo.status
-      if (status !== "pending" && status !== "completed") return
-      const ctx = {
-        tool: status === "completed" ? "TaskUpdate" : "TaskCreate",
-        args: {
-          status,
-          subject: todo.content,
-          content: todo.content,
-        },
-        cwd: directory,
+      const properties = event.properties ?? {}
+      const todos = Array.isArray(properties.todos) ? properties.todos : []
+      if (todos.length === 0) return
+
+      const sessionID = properties.sessionID ?? "default"
+      const previous = todoStatusBySession.get(sessionID) ?? new Map()
+      const next = new Map()
+      const reminders = []
+
+      for (const [index, todo] of todos.entries()) {
+        const status = todo.status
+        const key = todoKey(todo, index)
+        next.set(key, status)
+
+        if (status !== "pending" && status !== "completed") continue
+        if (previous.get(key) === status) continue
+
+        reminders.push({
+          tool: status === "completed" ? "TaskUpdate" : "TaskCreate",
+          todo,
+        })
       }
-      await runHooks(["plan-update-reminder"], ctx)
+
+      todoStatusBySession.set(sessionID, next)
+
+      for (const { tool, todo } of reminders) {
+        await runHooks(["plan-update-reminder"], {
+          tool,
+          args: {
+            status: todo.status,
+            subject: todo.content,
+            content: todo.content,
+          },
+          cwd: directory,
+        })
+      }
     },
   }
 }
