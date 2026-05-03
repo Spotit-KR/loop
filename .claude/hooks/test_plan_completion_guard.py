@@ -25,17 +25,18 @@ def run_hook(tool_name, tool_input, plan_base=None):
     return result.returncode, result.stderr
 
 
-def create_plan_dir(base, name, complete=True):
-    """테스트용 plan 디렉토리 생성."""
+def create_plan_dir(base, name, complete=True, extra_files=None):
+    """테스트용 plan 디렉토리 생성. 정책상 plan.md + checklist.md 2종이 필수."""
     plan_dir = os.path.join(base, "docs", "plan", name)
     os.makedirs(plan_dir, exist_ok=True)
     check = "[x]" if complete else "[ ]"
     with open(os.path.join(plan_dir, "plan.md"), "w") as f:
         f.write(f"# Test\n- {check} step 1\n")
-    with open(os.path.join(plan_dir, "context.md"), "w") as f:
-        f.write("# Context\n")
     with open(os.path.join(plan_dir, "checklist.md"), "w") as f:
         f.write("# Checklist\n")
+    for extra in extra_files or []:
+        with open(os.path.join(plan_dir, extra), "w") as f:
+            f.write(f"# {extra}\n")
 
 
 def test_non_bash_allowed():
@@ -97,6 +98,46 @@ def test_mixed_plans_blocked():
         assert "wip-task" in stderr
 
 
+def test_two_doc_incomplete_plan_blocked():
+    """정책 정합성 회귀: plan.md + checklist.md 2종만 있는 미완료 plan은 차단되어야 함.
+
+    이전 가드는 context.md까지 3종을 요구해, 정책에 맞춰 2종으로 작성된 미완료 plan이
+    거짓통과(exit=0) 되는 결함이 있었다. (#44)
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        create_plan_dir(tmp, "two-doc-wip", complete=False)
+        code, stderr = run_hook(
+            "Bash", {"command": 'gh pr create --title "test"'}, plan_base=tmp
+        )
+        assert code == 2, f"Should block 2-doc incomplete plan, got {code}"
+        assert "two-doc-wip" in stderr
+
+
+def test_two_doc_with_extra_files_still_blocked():
+    """가드는 필수 2종만 보고, 추가 파일이 있어도 미완료면 차단되어야 함."""
+    with tempfile.TemporaryDirectory() as tmp:
+        create_plan_dir(
+            tmp, "extras-wip", complete=False, extra_files=["context.md", "notes.md"]
+        )
+        code, _ = run_hook(
+            "Bash", {"command": "git push origin main"}, plan_base=tmp
+        )
+        assert code == 2, f"Should block regardless of extra files, got {code}"
+
+
+def test_plan_without_checklist_skipped():
+    """필수 2종이 모두 갖춰지지 않은 디렉토리는 가드 대상이 아님."""
+    with tempfile.TemporaryDirectory() as tmp:
+        plan_dir = os.path.join(tmp, "docs", "plan", "no-checklist")
+        os.makedirs(plan_dir, exist_ok=True)
+        with open(os.path.join(plan_dir, "plan.md"), "w") as f:
+            f.write("# Test\n- [ ] step 1\n")
+        code, _ = run_hook(
+            "Bash", {"command": 'gh pr create --title "test"'}, plan_base=tmp
+        )
+        assert code == 0, f"Incomplete-but-not-required dir should be skipped, got {code}"
+
+
 if __name__ == "__main__":
     tests = [
         test_non_bash_allowed,
@@ -106,6 +147,9 @@ if __name__ == "__main__":
         test_pr_create_allowed_with_complete_plan,
         test_pr_create_allowed_with_no_plans,
         test_mixed_plans_blocked,
+        test_two_doc_incomplete_plan_blocked,
+        test_two_doc_with_extra_files_still_blocked,
+        test_plan_without_checklist_skipped,
     ]
     failed = 0
     for test in tests:
