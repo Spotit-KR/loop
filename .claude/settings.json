@@ -9,15 +9,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/block_dangerous.py\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/hooks/adapters/claude/run.mjs\" block-dangerous"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/work_plan_enforcer.py\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/hooks/adapters/claude/run.mjs\" work-plan-enforcer"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/plan_completion_guard.py\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/hooks/adapters/claude/run.mjs\" plan-completion-guard"
           }
         ]
       },
@@ -26,11 +26,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/layer_doc_reminder.py\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/hooks/adapters/claude/run.mjs\" layer-doc-reminder"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/work_plan_enforcer.py\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/hooks/adapters/claude/run.mjs\" work-plan-enforcer"
           }
         ]
       }
@@ -41,7 +41,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/plan_update_reminder.py\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/hooks/adapters/claude/run.mjs\" plan-update-reminder"
           }
         ]
       },

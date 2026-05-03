@@ -2,6 +2,10 @@
 
 작업 계획 문서 작성 시 별도 지시가 없으면 docs/ 디렉토리에 마크다운 파일로 작성.
 
+## 런타임 의존성
+
+- **Bun 1.x** — 훅 디스패처(`hooks/adapters/claude/run.mjs`)와 OpenCode 플러그인이 Bun 런타임으로 실행됩니다. Claude Code 훅과 OpenCode 플러그인 양쪽 모두 `hooks/core/*.ts`를 공유하므로 Bun이 PATH에 있어야 합니다.
+
 ## 작업 계획 프로세스
 
 모든 코드 작업은 이슈 생성 → 계획 → 실행 → 검증 순서로 진행합니다. 상세 규칙은 @docs/work-planning-rules.md 참고.
