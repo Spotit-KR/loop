@@ -20,7 +20,7 @@ import sys
 PROJECT_DIR = os.environ.get("CLAUDE_PROJECT_DIR", "")
 PLAN_BASE = os.path.join(PROJECT_DIR, "docs", "plan") if PROJECT_DIR else ""
 
-REQUIRED_PLAN_FILES = ["plan.md", "context.md", "checklist.md"]
+REQUIRED_PLAN_FILES = ["plan.md", "checklist.md"]
 
 # gh pr create 또는 git push 감지
 PR_CREATE_RE = re.compile(r"\bgh\s+pr\s+create\b")
